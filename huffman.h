@@ -2,11 +2,12 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
-	struct HuffmanNode_
-	{
-		
-	};
+struct Occurence_
+{
+	char value;
+	int  numOfOccurences; 
+};
 
-	typedef HuffmanNode_ HuffmanNode;
+typedef struct Occurence_ Occurence;
 
 #endif
