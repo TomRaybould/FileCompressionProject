@@ -7,6 +7,10 @@ int addOccurence(Occurence **occurences, int listSize, char c);
 void printOccurences(Occurence *occurences, int listSize);
 void readInFile(char *fileName);
 
+int cmpfunc (const void *a, const void *b) {
+   return (((Occurence*)a)->numOfOccurences - ((Occurence*)b)->numOfOccurences);
+}
+
 /**
 Reads in the file using a buffer and spits out a char array representing the files content
 */
@@ -47,9 +51,11 @@ void readInFile(char *fileName){
 
 		free(buffer);
 
-		printOccurences(*occurences, occurenceArrSize);
-
 	}
+
+	qsort(*occurences, occurenceArrSize, 8, cmpfunc);
+
+	printOccurences(*occurences, occurenceArrSize);
 
 	fclose(fileptr); // Close the file
 
@@ -70,7 +76,7 @@ int addOccurence(Occurence **occurences, int listSize, char c){
 		for(int i = 0; i < listSize; i++){
 			Occurence occurence = (*occurences)[i];
 			if(occurence.value == c){
-				occurence.numOfOccurences++;
+				(*occurences)[i].numOfOccurences ++;
 				return listSize;
 			}
 		}
