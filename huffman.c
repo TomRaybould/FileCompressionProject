@@ -30,7 +30,7 @@ void readInFile(char *fileName){
 
 	int lastIndex = 0;
 
-	int occurenceArrSize = 0;
+	int occurrenceArrSize = 0;
 	Occurrence  **occurrences;
 
 	while(lastIndex < filelen){
@@ -45,7 +45,7 @@ void readInFile(char *fileName){
 		fread(buffer, bufferSize, 1, fileptr); // Read in the entire file
 		
 		for(int i = 0; i < bufferSize; i ++){
-			occurenceArrSize = addOccurrence(occurrences, occurenceArrSize, buffer[i]);
+			occurrenceArrSize = addOccurrence(occurrences, occurrenceArrSize, buffer[i]);
 			//printf("%c", buffer[i]);
 		}
 
@@ -55,9 +55,11 @@ void readInFile(char *fileName){
 
 	}
 
-	qsort(*occurrences, occurenceArrSize, 8, cmpfunc);
+	qsort(*occurrences, occurrenceArrSize, 8, cmpfunc);
 
-	printOccurrences(*occurrences, occurenceArrSize);
+	printOccurrences(*occurrences, occurrenceArrSize);
+
+	buildTree(*occurrences, occurrenceArrSize);
 
 	fclose(fileptr); // Close the file
 
@@ -110,6 +112,21 @@ void printOccurrences(Occurrence *occurrences, int listSize){
 }
 
 void buildTree(Occurrence *occurrences, int listSize){
+
+	HuffmanNodeHeap *heap = HuffmanNodeHeap_create(4);
+
+
+	for(char i = 'a'; i < 'e'; i++){
+		
+		HuffmanNode node;
+		node.value = i;
+		node.weight = 1;
+		HuffmanNodeHeap_push(heap, node);
+		
+	}
+	
+
+	HuffmanNodeHeap_print(heap);
 
 }
 
