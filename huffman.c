@@ -2,13 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "huffman.h"
+#include "occurrence_heap.h"
 
-int addOccurence(Occurence **occurences, int listSize, char c);
-void printOccurences(Occurence *occurences, int listSize);
+int addOccurrence(Occurrence **occurrences, int listSize, char c);
+void printOccurrences(Occurrence *occurrences, int listSize);
+void buildTree(Occurrence *occurrences, int listSize);
 void readInFile(char *fileName);
 
 int cmpfunc (const void *a, const void *b) {
-   return (((Occurence*)a)->numOfOccurences - ((Occurence*)b)->numOfOccurences);
+   return (((Occurrence*)a)->numOfOccurrences - ((Occurrence*)b)->numOfOccurrences);
 }
 
 /**
@@ -29,7 +31,7 @@ void readInFile(char *fileName){
 	int lastIndex = 0;
 
 	int occurenceArrSize = 0;
-	Occurence  **occurences;
+	Occurrence  **occurrences;
 
 	while(lastIndex < filelen){
 
@@ -43,7 +45,7 @@ void readInFile(char *fileName){
 		fread(buffer, bufferSize, 1, fileptr); // Read in the entire file
 		
 		for(int i = 0; i < bufferSize; i ++){
-			occurenceArrSize = addOccurence(occurences, occurenceArrSize, buffer[i]);
+			occurenceArrSize = addOccurrence(occurrences, occurenceArrSize, buffer[i]);
 			//printf("%c", buffer[i]);
 		}
 
@@ -53,45 +55,45 @@ void readInFile(char *fileName){
 
 	}
 
-	qsort(*occurences, occurenceArrSize, 8, cmpfunc);
+	qsort(*occurrences, occurenceArrSize, 8, cmpfunc);
 
-	printOccurences(*occurences, occurenceArrSize);
+	printOccurrences(*occurrences, occurenceArrSize);
 
 	fclose(fileptr); // Close the file
 
 }
 
 
-int addOccurence(Occurence **occurences, int listSize, char c){
+int addOccurrence(Occurrence **occurrences, int listSize, char c){
 
 	if(listSize == 0){
-		*occurences = (malloc(sizeof(Occurence)));
-		(*occurences)[0].value = c;
-		(*occurences)[0].numOfOccurences = 1;
+		*occurrences = (malloc(sizeof(Occurrence)));
+		(*occurrences)[0].value = c;
+		(*occurrences)[0].numOfOccurrences = 1;
 		return 1;
 	}
 
 	else{
-		//add one to number of occurences if already in list 
+		//add one to number of occurrences if already in list 
 		for(int i = 0; i < listSize; i++){
-			Occurence occurence = (*occurences)[i];
-			if(occurence.value == c){
-				(*occurences)[i].numOfOccurences ++;
+			Occurrence occurrence = (*occurrences)[i];
+			if(occurrence.value == c){
+				(*occurrences)[i].numOfOccurrences ++;
 				return listSize;
 			}
 		}
 		//else add new occurence
-		Occurence *newOccurences = malloc(sizeof(Occurence) * (listSize + 1));
+		Occurrence *newOccurrences = malloc(sizeof(Occurrence) * (listSize + 1));
 		for(int i = 0; i < listSize; i++){
-			newOccurences[i] = (*occurences)[i];
+			newOccurrences[i] = (*occurrences)[i];
 		}
 
-		free(*occurences);
+		free(*occurrences);
 
-		*occurences = newOccurences;
+		*occurrences = newOccurrences;
 
-		(*occurences)[listSize].value = c;
-		(*occurences)[listSize].numOfOccurences = 1;
+		(*occurrences)[listSize].value = c;
+		(*occurrences)[listSize].numOfOccurrences = 1;
 
 		return listSize + 1;
 
@@ -99,11 +101,15 @@ int addOccurence(Occurence **occurences, int listSize, char c){
 
 }
 
-void printOccurences(Occurence *occurences, int listSize){
+void printOccurrences(Occurrence *occurrences, int listSize){
 
 	for(int i = 0; i < listSize; i ++){
-		printf("%c %d\n", occurences[i].value, occurences[i].numOfOccurences);
+		printf("%c %d\n", occurrences[i].value, occurrences[i].numOfOccurrences);
 	}
+
+}
+
+void buildTree(Occurrence *occurrences, int listSize){
 
 }
 
