@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "huffman.h"
-#include "occurrence_heap.h"
+#include "huffman_tree.h"
 
 int addOccurrence(Occurrence **occurrences, int listSize, char c);
 void printOccurrences(Occurrence *occurrences, int listSize);
@@ -115,6 +115,7 @@ void buildTree(Occurrence *occurrences, int listSize){
 
 	HuffmanNodeHeap **heap;
 
+	//testing heap logic
 	int size = 15;
 
 	HuffmanNodeHeap *h = (HuffmanNodeHeap_create(size));
@@ -126,6 +127,9 @@ void buildTree(Occurrence *occurrences, int listSize){
 		HuffmanNode node;
 		node.value = i;
 		node.weight = i;
+		node.left = NULL;
+		node.right = NULL;
+		
 		HuffmanNodeHeap_push(heap, node);
 
 		HuffmanNodeHeap_print(*heap);
