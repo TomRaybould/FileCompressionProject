@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "occurrence_heap.h"
 
-void sift_up(HuffmanNodeHeap **heap, int position);
+void sift_up	(HuffmanNodeHeap **heap, int position);
+void sift_down	(HuffmanNodeHeap **heap, int position);
 
 HuffmanNodeHeap* HuffmanNodeHeap_create(int size){	
 
@@ -25,6 +26,7 @@ void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanNode node){
 
 	curr_size ++;
 	h -> size = curr_size;
+
 	sift_up(heap, curr_size - 1);	
 }
 
@@ -32,18 +34,26 @@ HuffmanNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
 	
 	HuffmanNodeHeap *h = *heap;
 	int curr_size = h -> size;
-	
+
 	if(curr_size <= 0){
 		return NULL;
 	}
 
-	HuffmanNode rootNode = (h -> data)[0];
-	HuffmanNode *node = HuffmanNode_create(rootNode.value, rootNode.weight);
+	HuffmanNode *root_node = &((h -> data)[0]);
 
-	printf("%d\n", curr_size);
+	HuffmanNode *node = HuffmanNode_create(root_node -> value, root_node -> weight);
+
+	//swap last node with first node
+	HuffmanNode *last_node = &((h -> data)[curr_size - 1]);
+
+	root_node -> value 	= last_node -> value;
+	root_node -> weight = last_node -> weight;
+
 	curr_size --;
-
 	h -> size = curr_size;
+
+	sift_down(heap, 0);
+
 	return node;
 	
 }
@@ -56,7 +66,7 @@ void sift_up(HuffmanNodeHeap **heap, int position){
 
 	int parent_index = (position - 1) / 2;
 	
-	HuffmanNode *data = (*(heap)) -> data;  
+	HuffmanNode *data = (*heap) -> data;  
 
 	HuffmanNode *parent = &(data[parent_index]);
 	HuffmanNode *curr 	= &(data[position]);
@@ -77,10 +87,68 @@ void sift_up(HuffmanNodeHeap **heap, int position){
 
 }
 
-void sift_down(){
+void sift_down(HuffmanNodeHeap **heap, int position){
+	HuffmanNodeHeap *h = *heap;
+	int heap_size = h -> size;
 
+	if(position > heap_size){
+		return;
+	}
+
+	int left_child_index = 	(position * 2) + 1;
+	int right_child_index = (position * 2) + 2;
+
+	HuffmanNode *data = (*heap) -> data;
+
+	HuffmanNode *right_child = NULL;
+	HuffmanNode *left_child  = NULL;
+	HuffmanNode *curr_node   = &(data[position]);
+	
+	if(left_child_index <= heap_size){
+		left_child = &(data[left_child_index]);
+	}
+	if(right_child_index <= heap_size){
+		right_child = &(data[right_child_index]);
+	}
+
+	//cant sift any further
+	if(left_child == NULL){
+		return;
+	}
+
+	if(right_child == NULL ||
+		left_child -> weight <= right_child -> weight){
+
+		if(left_child -> weight < curr_node -> weight){
+
+			char 	temp_val 	= curr_node -> value;
+			int 	temp_weight = curr_node -> weight;
+
+			curr_node -> value 	= left_child -> value;
+			curr_node -> weight = left_child -> weight;
+
+			left_child -> value  = temp_val;
+			left_child -> weight = temp_weight;
+
+			sift_down(heap, left_child_index);
+		}
+	}
+	else{
+		if(right_child -> weight < curr_node -> weight){
+
+			char 	temp_val 	= curr_node -> value;
+			int 	temp_weight = curr_node -> weight;
+
+			curr_node -> value 	= right_child -> value;
+			curr_node -> weight = right_child -> weight;
+
+			right_child -> value  = temp_val;
+			right_child -> weight = temp_weight;
+
+			sift_down(heap, right_child_index);
+		}
+	}
 }
-
 
 void HuffmanNodeHeap_print(HuffmanNodeHeap *heap){
 
