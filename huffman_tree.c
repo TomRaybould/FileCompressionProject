@@ -15,17 +15,12 @@ HuffmanNodeHeap* HuffmanNodeHeap_create(int size){
 	return heap;
 }
 
-void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanNode node){
+void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanNode *node){
 	HuffmanNodeHeap *h = *heap;
-
-	HuffmanNode *node_pointer = HuffmanNode_create(node.value,
-		node.weight,
-		node.right,
-		node.left);
 
 	int curr_size = h -> size;
 
-	((h -> data)[curr_size]) = node_pointer;
+	((h -> data)[curr_size]) = node;
 
 	curr_size ++;
 	h -> size = curr_size;
@@ -173,20 +168,8 @@ HuffmanNode* HuffmanNode_create(char value, int weight, HuffmanNode *left, Huffm
 	HuffmanNode *node = malloc(sizeof(HuffmanNode));
 	node -> value 	= value;
 	node -> weight 	= weight;
-
-	if(left != NULL){
-		HuffmanNode_create(left -> value, 
-			left -> weight, 
-			left -> left, 
-			left -> right);
-	}
-	if(right != NULL){
-		HuffmanNode_create(right -> value, 
-			right -> weight, 
-			right -> left, 
-			right -> right);
-	}
-
+	node -> left 	= left;
+	node -> right  	= right;
 	return node;
 }
 
