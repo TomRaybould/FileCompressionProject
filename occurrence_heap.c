@@ -6,28 +6,60 @@ HuffmanNodeHeap* HuffmanNodeHeap_create(int size){
 
 	HuffmanNodeHeap *heap = malloc(sizeof(HuffmanNodeHeap));
 	heap -> capacity = size;
-	int curr_size = 0;
-	heap -> size = &curr_size;
+	heap -> size = 0;
 	heap -> data = malloc(sizeof(HuffmanNode) * size);
 	
 	return heap;
 }
 
+void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanNode node){
+	HuffmanNodeHeap *h = *heap;
 
-void HuffmanNodeHeap_push(HuffmanNodeHeap *heap, HuffmanNode node){
-	int curr_size = *(heap -> size);
-	(heap -> data)[curr_size] = node;
+	int curr_size = h -> size;
+
+	HuffmanNode *nodeInHeap = &((h -> data)[curr_size]);
+	nodeInHeap -> value = node.value;
+	nodeInHeap -> weight = node.weight;
+
 	curr_size ++;
-	(heap -> size) = &curr_size;
+	h -> size = curr_size;
+	
+}
+
+HuffmanNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
+	
+	HuffmanNodeHeap *h = *heap;
+	int curr_size = h -> size;
+	
+	if(curr_size <= 0){
+		return NULL;
+	}
+
+	HuffmanNode rootNode = (h -> data)[0];
+	HuffmanNode *node = HuffmanNode_create(rootNode.value, rootNode.weight);
+
+	printf("%d\n", curr_size);
+	curr_size --;
+
+	h -> size = curr_size;
+	return node;
+	
 }
 
 
-HuffmanNode HuffmanNodeHeap_pop();
+void sift_up(HuffmanNodeHeap *heap){
+	//int curr_size = *()
+
+}
+
+void sift_down(){
+
+}
 
 
 void HuffmanNodeHeap_print(HuffmanNodeHeap *heap){
 
-	int size = *(heap -> size);
+	int size = heap -> size;
 	HuffmanNode *data = heap -> data; 
 
 	for (int i = 0; i < size; i++){
@@ -36,3 +68,15 @@ void HuffmanNodeHeap_print(HuffmanNodeHeap *heap){
 	}
 
 }
+
+HuffmanNode* HuffmanNode_create(char value, int weight){
+	HuffmanNode *node = malloc(sizeof(HuffmanNode));
+	node -> value 	= value;
+	node -> weight 	= weight;
+	return node;
+}
+
+void HuffmanNode_destroy(HuffmanNode *node){
+	free(node);
+}
+

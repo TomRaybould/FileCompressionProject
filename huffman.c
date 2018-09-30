@@ -113,8 +113,11 @@ void printOccurrences(Occurrence *occurrences, int listSize){
 
 void buildTree(Occurrence *occurrences, int listSize){
 
-	HuffmanNodeHeap *heap = HuffmanNodeHeap_create(4);
+	HuffmanNodeHeap **heap;
 
+	HuffmanNodeHeap *h = (HuffmanNodeHeap_create(4));
+
+	heap = &h;
 
 	for(char i = 'a'; i < 'e'; i++){
 		
@@ -124,10 +127,16 @@ void buildTree(Occurrence *occurrences, int listSize){
 		HuffmanNodeHeap_push(heap, node);
 		
 	}
+
+	HuffmanNodeHeap_print(*heap);
+
 	
-
-	HuffmanNodeHeap_print(heap);
-
+	for(int i = 0; i < 4; i++){
+		HuffmanNode *node = HuffmanNodeHeap_pop(heap);
+		HuffmanNode_destroy(node);
+		HuffmanNodeHeap_print(*heap);
+	}
+	
 }
 
 
