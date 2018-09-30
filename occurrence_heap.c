@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "occurrence_heap.h"
 
+void sift_up(HuffmanNodeHeap **heap, int position);
+
 HuffmanNodeHeap* HuffmanNodeHeap_create(int size){	
 
 	HuffmanNodeHeap *heap = malloc(sizeof(HuffmanNodeHeap));
@@ -23,7 +25,7 @@ void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanNode node){
 
 	curr_size ++;
 	h -> size = curr_size;
-	
+	sift_up(heap, curr_size - 1);	
 }
 
 HuffmanNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
@@ -47,8 +49,31 @@ HuffmanNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
 }
 
 
-void sift_up(HuffmanNodeHeap *heap){
-	//int curr_size = *()
+void sift_up(HuffmanNodeHeap **heap, int position){
+	if(position <= 0){
+		return;
+	}
+
+	int parent_index = (position - 1) / 2;
+	
+	HuffmanNode *data = (*(heap)) -> data;  
+
+	HuffmanNode *parent = &(data[parent_index]);
+	HuffmanNode *curr 	= &(data[position]);
+
+	if(curr -> weight < parent -> weight){
+
+		char 	temp_val 	= parent -> value;
+		int 	temp_weight = parent -> weight;
+
+		parent -> value  = curr -> value;
+		parent -> weight = curr -> weight;
+		curr   -> value  = temp_val;
+		curr   -> weight = temp_weight;
+
+		sift_up(heap, parent_index);
+
+	}
 
 }
 

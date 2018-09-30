@@ -119,11 +119,11 @@ void buildTree(Occurrence *occurrences, int listSize){
 
 	heap = &h;
 
-	for(char i = 'a'; i < 'e'; i++){
+	for(char i = 'd'; i > ('a' - 1); i--){
 		
 		HuffmanNode node;
 		node.value = i;
-		node.weight = 1;
+		node.weight = i;
 		HuffmanNodeHeap_push(heap, node);
 		
 	}
