@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "huffman.h"
 #include "huffman_tree.h"
+#include "dynamic_list.h"
 
 int addOccurrence(Occurrence **occurrences, int listSize, char c);
 void printOccurrences(Occurrence *occurrences, int listSize);
@@ -186,3 +187,8 @@ int main (int argc, char *argv[]){
 	return -1;
 
 }
+
+
+
+
+
