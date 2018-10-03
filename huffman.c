@@ -5,13 +5,17 @@
 #include "huffman_tree.h"
 #include "dynamic_list.h"
 
-int addOccurrence(Occurrence **occurrences, int listSize, char c);
-void printOccurrences(Occurrence *occurrences, int listSize);
+void addOccurrence(DynamicList **list, char c);
+void printOccurrences(void **occurrences, int listSize);
 void buildTree(Occurrence *occurrences, int listSize);
 void readInFile(char *fileName);
 
 int cmpfunc (const void *a, const void *b) {
-   return (((Occurrence*)a)->numOfOccurrences - ((Occurrence*)b)->numOfOccurrences);
+	Occurrence **occ_ap = (Occurrence**)(a);
+	Occurrence **occ_bp = (Occurrence**)(b);
+	Occurrence *occ_a = *occ_ap;
+	Occurrence *occ_b = *occ_bp;
+   return (occ_a -> numOfOccurrences - occ_b ->numOfOccurrences);
 }
 
 /**
@@ -31,8 +35,9 @@ void readInFile(char *fileName){
 
 	int lastIndex = 0;
 
-	int occurrenceArrSize = 0;
-	Occurrence  **occurrences;
+
+	DynamicList *dl = DynamicList_create(10);
+	DynamicList **occ_list = &dl;
 
 	while(lastIndex < filelen){
 
@@ -46,7 +51,7 @@ void readInFile(char *fileName){
 		fread(buffer, bufferSize, 1, fileptr); // Read in the entire file
 		
 		for(int i = 0; i < bufferSize; i ++){
-			occurrenceArrSize = addOccurrence(occurrences, occurrenceArrSize, buffer[i]);
+			addOccurrence(occ_list, buffer[i]);
 			//printf("%c", buffer[i]);
 		}
 
@@ -56,58 +61,48 @@ void readInFile(char *fileName){
 
 	}
 
-	qsort(*occurrences, occurrenceArrSize, 8, cmpfunc);
+	DynamicList *l = *occ_list;
 
-	printOccurrences(*occurrences, occurrenceArrSize);
+	printOccurrences((l -> data), l -> size);
 
-	buildTree(*occurrences, occurrenceArrSize);
+	qsort((l -> data), l -> size, (sizeof(void *)), cmpfunc);
+
+	printOccurrences((l -> data), l -> size);
+
+	//buildTree(*(l -> data), l -> size);
 
 	fclose(fileptr); // Close the file
 
 }
 
+void addOccurrence(DynamicList **list, char c){
+	printf("%c\n", c);
+	DynamicList *l = *list;
+	int list_size = l -> size;
+	Occurrence **data =((Occurrence **) (l -> data));	
 
-int addOccurrence(Occurrence **occurrences, int listSize, char c){
-
-	if(listSize == 0){
-		*occurrences = (malloc(sizeof(Occurrence)));
-		(*occurrences)[0].value = c;
-		(*occurrences)[0].numOfOccurrences = 1;
-		return 1;
-	}
-
-	else{
-		//add one to number of occurrences if already in list 
-		for(int i = 0; i < listSize; i++){
-			Occurrence occurrence = (*occurrences)[i];
-			if(occurrence.value == c){
-				(*occurrences)[i].numOfOccurrences ++;
-				return listSize;
-			}
+	printf("List size %d\n", list_size);
+	
+	//add one to number of occurrences if already in list 
+	for(int i = 0; i < list_size; i++){
+		Occurrence *occurrence = data[i];
+		if(occurrence -> value == c){
+			occurrence -> numOfOccurrences++;
+			return;
 		}
-		//else add new occurence
-		Occurrence *newOccurrences = malloc(sizeof(Occurrence) * (listSize + 1));
-		for(int i = 0; i < listSize; i++){
-			newOccurrences[i] = (*occurrences)[i];
-		}
-
-		free(*occurrences);
-
-		*occurrences = newOccurrences;
-
-		(*occurrences)[listSize].value = c;
-		(*occurrences)[listSize].numOfOccurrences = 1;
-
-		return listSize + 1;
-
 	}
+	//else add new occurence
+	Occurrence *occurrence = malloc(sizeof(Occurrence));
+	occurrence -> value = c;
+	occurrence -> numOfOccurrences = 1;
 
+	DynamicList_add(list, occurrence);
 }
 
-void printOccurrences(Occurrence *occurrences, int listSize){
-
+void printOccurrences(void **occurrences, int listSize){
 	for(int i = 0; i < listSize; i ++){
-		printf("%c %d\n", occurrences[i].value, occurrences[i].numOfOccurrences);
+		Occurrence *occurrence = (Occurrence(*))occurrences[i];
+		printf("%c %d\n", occurrence->value, occurrence -> numOfOccurrences);
 	}
 
 }
