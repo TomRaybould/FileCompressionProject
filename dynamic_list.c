@@ -21,13 +21,10 @@ void DynamicList_add(DynamicList **list, void *element){
 	if(l -> size >= l -> _capacity){
 
 		int new_capacity = (l -> _capacity) * 2;
-		
-		printf("%s\n", "here 1");
 
 		l -> data = realloc(l -> data, ((sizeof(void*)) * new_capacity));
 
 		l -> _capacity = new_capacity;
-		printf("%d\n", new_capacity);
 	}
 
 	(l->data)[l -> size] = element;
@@ -40,7 +37,9 @@ void DynamicList_trim(DynamicList **list){
 
 	int curr_size = l -> size;
 
-	l -> data = realloc((l -> data), curr_size);
+	l -> data = realloc(l -> data, ((sizeof(void*)) * curr_size));
+
+	l -> _capacity = curr_size;
 
 	return;	
 } 

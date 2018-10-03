@@ -63,7 +63,7 @@ void readInFile(char *fileName){
 
 	DynamicList *l = *occ_list;
 
-	printOccurrences((l -> data), l -> size);
+	DynamicList_trim(occ_list);
 
 	qsort((l -> data), l -> size, (sizeof(void *)), cmpfunc);
 
@@ -76,12 +76,9 @@ void readInFile(char *fileName){
 }
 
 void addOccurrence(DynamicList **list, char c){
-	printf("%c\n", c);
 	DynamicList *l = *list;
 	int list_size = l -> size;
-	Occurrence **data =((Occurrence **) (l -> data));	
-
-	printf("List size %d\n", list_size);
+	Occurrence **data =((Occurrence **) (l -> data));
 	
 	//add one to number of occurrences if already in list 
 	for(int i = 0; i < list_size; i++){
