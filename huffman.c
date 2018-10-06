@@ -4,6 +4,7 @@
 #include "huffman.h"
 #include "huffman_tree.h"
 #include "dynamic_list.h"
+#include "hashmap.h"
 
 void 				addOccurrence		(DynamicList **list, char c);
 void 				printOccurrences	(void **occurrences, int list_size);
