@@ -14,7 +14,7 @@
 
 	struct HashMap_
 	{
-		Entry *entries;
+		Entry **entries;
 		int size; 		
 	};
 
