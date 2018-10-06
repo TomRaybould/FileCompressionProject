@@ -3,6 +3,25 @@
 
 int hash(int map_size, char key);
 
+
+Entry* Entry_create	(char key){
+	Entry *newEntry = malloc(sizeof(Entry));
+
+	newEntry 	-> key 			= key;
+	newEntry	-> data 		= NULL;
+	newEntry 	-> bit_length 	= 0;
+	newEntry	-> next 		= NULL;
+
+	return newEntry;
+}
+
+
+void Entry_destroy(Entry **entry){
+	free(*entry);
+}
+
+
+
 HashMap* HashMap_create(int size){
 
 	Entry **entries 	= malloc(sizeof(Entry*) * size);
@@ -24,14 +43,28 @@ int hash(int map_size, char key){
 }
 
 void HashMap_put(HashMap **map, char key, void *data){
-	HashMap *m = *map;
 	
+	HashMap *m = *map;
 	int map_size = m -> size;
-
 	int hashed_key = hash(map_size, key);
 
+	Entry *newEntry = Entry_create(key);
+	Entry **entries = m -> entries;  
 
+	//if null add new entry
+	if(entries[hashed_key] == NULL){
+		entries[hashed_key] = newEntry;
+		return;
+	}
 
+	//go to the end of the entry listed list add to last element
+	Entry *curr = entries[hashed_key];
+	
+	while(curr -> next != NULL){
+		curr = curr -> next;
+	}
+
+	curr -> next = newEntry;
 
 }
 
