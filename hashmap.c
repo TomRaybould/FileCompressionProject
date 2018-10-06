@@ -43,7 +43,7 @@ int hash(int map_size, char key){
 }
 
 void HashMap_put(HashMap **map, char key, void *data){
-	
+
 	HashMap *m = *map;
 	int map_size = m -> size;
 	int hashed_key = hash(map_size, key);
@@ -68,7 +68,29 @@ void HashMap_put(HashMap **map, char key, void *data){
 
 }
 
-Entry* HashMap_get(HashMap **map, char key);
+Entry* HashMap_get(HashMap **map, char key){
+
+	HashMap *m = *map;
+	int map_size = m -> size;
+	int hashed_key = hash(map_size, key);
+
+	Entry **entries = m -> entries;  
+
+	//search the linkedlist for value
+	Entry *curr = entries[hashed_key];
+	
+	while(curr != NULL){
+		//found a match for key
+		if(curr -> key == key){
+			return curr;
+		}
+
+		curr = curr -> next;
+	}
+
+	//no match found
+	return NULL;
+}
 
 void HashMap_print(); 
 
