@@ -5,10 +5,10 @@
 #include "huffman_tree.h"
 #include "dynamic_list.h"
 
-void addOccurrence(DynamicList **list, char c);
-void printOccurrences(void **occurrences, int listSize);
-void buildTree(Occurrence *occurrences, int listSize);
-void readInFile(char *fileName);
+void 				addOccurrence		(DynamicList **list, char c);
+void 				printOccurrences	(void **occurrences, int list_size);
+HuffmanTreeNode* 	buildTree			(Occurrence **occurrences, int list_size, int total_chars);
+void 				readInFile			(char *fileName);
 
 int cmpfunc (const void *a, const void *b) {
 	Occurrence **occ_ap = (Occurrence**)(a);
@@ -39,6 +39,8 @@ void readInFile(char *fileName){
 	DynamicList *dl = DynamicList_create(10);
 	DynamicList **occ_list = &dl;
 
+	int total_chars = 0;
+
 	while(lastIndex < filelen){
 
 		if(bufferSize > filelen - lastIndex){
@@ -52,6 +54,7 @@ void readInFile(char *fileName){
 		
 		for(int i = 0; i < bufferSize; i ++){
 			addOccurrence(occ_list, buffer[i]);
+			total_chars++;
 			//printf("%c", buffer[i]);
 		}
 
@@ -69,7 +72,7 @@ void readInFile(char *fileName){
 
 	printOccurrences((l -> data), l -> size);
 
-	//buildTree(*(l -> data), l -> size);
+	buildTree((Occurrence**)(l -> data), l -> size, total_chars);
 
 	fclose(fileptr); // Close the file
 
@@ -96,15 +99,15 @@ void addOccurrence(DynamicList **list, char c){
 	DynamicList_add(list, occurrence);
 }
 
-void printOccurrences(void **occurrences, int listSize){
-	for(int i = 0; i < listSize; i ++){
+void printOccurrences(void **occurrences, int list_size){
+	for(int i = 0; i < list_size; i ++){
 		Occurrence *occurrence = (Occurrence(*))occurrences[i];
 		printf("%c %d\n", occurrence->value, occurrence -> numOfOccurrences);
 	}
 
 }
 
-void buildTree(Occurrence *occurrences, int listSize){
+HuffmanTreeNode* buildTree(Occurrence **occurrences, int list_size, int total_chars){
 
 	HuffmanNodeHeap **heap;
 
@@ -115,23 +118,26 @@ void buildTree(Occurrence *occurrences, int listSize){
 
 	heap = &h;
 
-	for(char i = ('a' - 1) + size; i > ('a'- 1); i--){
+	for(int i = 0; i < list_size; i++){
 		
+		Occurrence *occurrence = occurrences[i];
+
+		double weight = (double) occurrence -> numOfOccurrences / (double) total_chars;
+
 		HuffmanTreeNode *node = HuffmanTreeNode_create(
-			i,
-			i,
+			occurrence -> value,
+			weight,
 			NULL,
 			NULL);
 
 		HuffmanNodeHeap_push(heap, node);
-
-		HuffmanNodeHeap_print(*heap);
-
-		printf("%s\n", "");
 		
 	}
 
-	
+	printf("%s\n", "");
+
+	HuffmanNodeHeap_print(*heap);
+
 	int heap_size = (*heap) -> size;
 
 	while(heap_size > 0){
@@ -140,8 +146,7 @@ void buildTree(Occurrence *occurrences, int listSize){
 		
 		if(heap_size < 2){
 			//the tree is complete
-			HuffmanNodeHeap_pop(heap);
-			return;
+			return HuffmanNodeHeap_pop(heap);
 		}
 		else{
 			//pick the 2 lowest from the heap
@@ -160,6 +165,8 @@ void buildTree(Occurrence *occurrences, int listSize){
 		}
 
 	}
+
+	return HuffmanNodeHeap_pop(heap);
 
 	/*
 	while(node != NULL){
