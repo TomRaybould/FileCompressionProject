@@ -10,12 +10,12 @@ HuffmanNodeHeap* HuffmanNodeHeap_create(int size){
 	HuffmanNodeHeap *heap = malloc(sizeof(HuffmanNodeHeap));
 	heap -> capacity = size;
 	heap -> size = 0;
-	heap -> data = malloc(sizeof(HuffmanNode) * size);
+	heap -> data = malloc(sizeof(HuffmanTreeNode) * size);
 	
 	return heap;
 }
 
-void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanNode *node){
+void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanTreeNode *node){
 	HuffmanNodeHeap *h = *heap;
 
 	int curr_size = h -> size;
@@ -28,7 +28,7 @@ void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanNode *node){
 	sift_up(heap, curr_size - 1);	
 }
 
-HuffmanNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
+HuffmanTreeNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
 	
 	HuffmanNodeHeap *h = *heap;
 	int curr_size = h -> size;
@@ -37,15 +37,15 @@ HuffmanNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
 		return NULL;
 	}
 
-	HuffmanNode *root_node = &(*((h -> data)[0]));
+	HuffmanTreeNode *root_node = &(*((h -> data)[0]));
 
-	HuffmanNode *node = HuffmanNode_create(root_node -> value, 
+	HuffmanTreeNode *node = HuffmanTreeNode_create(root_node -> value, 
 		root_node -> weight, 
 		root_node -> left,
 		root_node -> right);
 
 	//swap last node with first node
-	HuffmanNode *last_node = &(*((h -> data)[curr_size - 1]));
+	HuffmanTreeNode *last_node = &(*((h -> data)[curr_size - 1]));
 
 	root_node -> value 	= last_node -> value;
 	root_node -> weight = last_node -> weight;
@@ -67,15 +67,15 @@ void sift_up(HuffmanNodeHeap **heap, int position){
 
 	int parent_index = (position - 1) / 2;
 	
-	HuffmanNode **data = (*heap) -> data;  
+	HuffmanTreeNode **data = (*heap) -> data;  
 
-	HuffmanNode *parent = &(*(data[parent_index]));
-	HuffmanNode *curr 	= &(*(data[position]));
+	HuffmanTreeNode *parent = &(*(data[parent_index]));
+	HuffmanTreeNode *curr 	= &(*(data[position]));
 
 	if(curr -> weight < parent -> weight){
 
 		char 	temp_val 	= parent -> value;
-		int 	temp_weight = parent -> weight;
+		double 	temp_weight = parent -> weight;
 
 		parent -> value  = curr -> value;
 		parent -> weight = curr -> weight;
@@ -99,11 +99,11 @@ void sift_down(HuffmanNodeHeap **heap, int position){
 	int left_child_index = 	(position * 2) + 1;
 	int right_child_index = (position * 2) + 2;
 
-	HuffmanNode **data = (*heap) -> data;
+	HuffmanTreeNode **data = (*heap) -> data;
 
-	HuffmanNode *right_child = NULL;
-	HuffmanNode *left_child  = NULL;
-	HuffmanNode *curr_node   = &(*(data[position]));
+	HuffmanTreeNode *right_child = NULL;
+	HuffmanTreeNode *left_child  = NULL;
+	HuffmanTreeNode *curr_node   = &(*(data[position]));
 	
 	if(left_child_index <= heap_size){
 		left_child = &(*(data[left_child_index]));
@@ -123,7 +123,7 @@ void sift_down(HuffmanNodeHeap **heap, int position){
 		if(left_child -> weight < curr_node -> weight){
 
 			char 	temp_val 	= curr_node -> value;
-			int 	temp_weight = curr_node -> weight;
+			double 	temp_weight = curr_node -> weight;
 
 			curr_node -> value 	= left_child -> value;
 			curr_node -> weight = left_child -> weight;
@@ -138,7 +138,7 @@ void sift_down(HuffmanNodeHeap **heap, int position){
 		if(right_child -> weight < curr_node -> weight){
 
 			char 	temp_val 	= curr_node -> value;
-			int 	temp_weight = curr_node -> weight;
+			double 	temp_weight = curr_node -> weight;
 
 			curr_node -> value 	= right_child -> value;
 			curr_node -> weight = right_child -> weight;
@@ -154,18 +154,18 @@ void sift_down(HuffmanNodeHeap **heap, int position){
 void HuffmanNodeHeap_print(HuffmanNodeHeap *heap){
 
 	int size = heap -> size;
-	HuffmanNode **data = heap -> data; 
+	HuffmanTreeNode **data = heap -> data; 
 
 	for (int i = 0; i < size; i++){
-		HuffmanNode node = *(data[i]);
-		printf("Value: %c, Weight: %d\n", node.value, node.weight);
+		HuffmanTreeNode node = *(data[i]);
+		printf("Value: %c, Weight: %lf\n", node.value, node.weight);
 	}
 
 }
 
 //recursively build tree
-HuffmanNode* HuffmanNode_create(char value, int weight, HuffmanNode *left, HuffmanNode *right){
-	HuffmanNode *node = malloc(sizeof(HuffmanNode));
+HuffmanTreeNode* HuffmanTreeNode_create(char value, double weight, HuffmanTreeNode *left, HuffmanTreeNode *right){
+	HuffmanTreeNode *node = malloc(sizeof(HuffmanTreeNode));
 	node -> value 	= value;
 	node -> weight 	= weight;
 	node -> left 	= left;
@@ -174,13 +174,13 @@ HuffmanNode* HuffmanNode_create(char value, int weight, HuffmanNode *left, Huffm
 }
 
 //recursively destory tree from root
-void HuffmanNode_destroy(HuffmanNode *node){
+void HuffmanTreeNode_destroy(HuffmanTreeNode *node){
 	
 	if(node -> left != NULL){
-		HuffmanNode_destroy(node -> left);
+		HuffmanTreeNode_destroy(node -> left);
 	}
 	if(node -> right != NULL){
-		HuffmanNode_destroy(node -> right);
+		HuffmanTreeNode_destroy(node -> right);
 	}
 
 	free(node);

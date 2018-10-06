@@ -117,7 +117,7 @@ void buildTree(Occurrence *occurrences, int listSize){
 
 	for(char i = ('a' - 1) + size; i > ('a'- 1); i--){
 		
-		HuffmanNode *node = HuffmanNode_create(
+		HuffmanTreeNode *node = HuffmanTreeNode_create(
 			i,
 			i,
 			NULL,
@@ -145,12 +145,12 @@ void buildTree(Occurrence *occurrences, int listSize){
 		}
 		else{
 			//pick the 2 lowest from the heap
-			HuffmanNode *sub_tree_1 = HuffmanNodeHeap_pop(heap);
-			HuffmanNode *sub_tree_2 = HuffmanNodeHeap_pop(heap);
+			HuffmanTreeNode *sub_tree_1 = HuffmanNodeHeap_pop(heap);
+			HuffmanTreeNode *sub_tree_2 = HuffmanNodeHeap_pop(heap);
 
 			//combine the to lowest by make a new parent
 			int new_weight = sub_tree_1 -> weight + sub_tree_2 -> weight;
-			HuffmanNode *new_parent_tree = HuffmanNode_create('p',
+			HuffmanTreeNode *new_parent_tree = HuffmanTreeNode_create('p',
 				new_weight,
 				sub_tree_1,
 				sub_tree_2);
@@ -163,7 +163,7 @@ void buildTree(Occurrence *occurrences, int listSize){
 
 	/*
 	while(node != NULL){
-		HuffmanNode_destroy(node);
+		HuffmanTreeNode_destroy(node);
 		node = HuffmanNodeHeap_pop(heap);
 		HuffmanNodeHeap_print(*heap);
 		printf("%s\n", "");
