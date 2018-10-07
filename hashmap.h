@@ -12,7 +12,7 @@
 
 	typedef struct Entry_ Entry;
 
-	Entry* 	Entry_create	(char key);
+	Entry* 	Entry_create	(unsigned char key, void* data, int data_bit_length);
 	void	Entry_destroy	(Entry **entry);
 	
 	struct HashMap_
@@ -24,8 +24,8 @@
 	typedef struct HashMap_ HashMap;
 
 	HashMap* 	HashMap_create	(int size);
-	void 		HashMap_put		(HashMap **map, char key, void *data);
-	Entry* 		HashMap_get		(HashMap **map, char key);
+	void 		HashMap_put		(HashMap **map, unsigned char key, void *data, int data_bit_length);
+	Entry* 		HashMap_get		(HashMap **map, unsigned char key);
 	void		HashMap_print	();
 	void		HashMap_destroy	(HashMap **map);
 

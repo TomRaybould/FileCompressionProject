@@ -10,6 +10,7 @@ void 				addOccurrence		(DynamicList **list, char c);
 void 				printOccurrences	(void **occurrences, int list_size);
 HuffmanTreeNode* 	buildTree			(Occurrence **occurrences, int list_size, int total_chars);
 HashMap*			buildHashMap		(HuffmanTreeNode *root, int size);
+void 				recsMapPop			(HashMap **map, HuffmanTreeNode *node, int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
 
 int cmpfunc (const void *a, const void *b) {
@@ -181,25 +182,35 @@ HuffmanTreeNode* buildTree(Occurrence **occurrences, int list_size, int total_ch
 	
 }
 
-HashMap* buildHashMap(HuffmanTreeNode *root, int size){
-
-	HashMap *map = HashMap_create(size);
-
-	while()
-
-}
-
-void resMapPop(HashMap **map, HuffmanTreeNode *node, int code_bit_length, unsigned int code){
+void recsMapPop(HashMap **map, HuffmanTreeNode *node, int code_bit_length, unsigned int code){
 	if(node == NULL){
 		return;
 	}
 
-	code = 
+	//only for leaf nodes
+	if(code_bit_length > 0 && node -> right == NULL && node -> left == NULL){
+		int *data = malloc(sizeof(int));
+		HashMap_put(map, node -> value, data, code_bit_length);
+	}
 
-	resMapPop(node -> left	, 0, NULL, 0);
-	resMapPop(node -> right	, 0, NULL, 1);
+	code = code << 1;
+	code_bit_length++;
+
+	//adds one to the code for the right side
+	recsMapPop(map, node -> right, code_bit_length, code | 0x0001);
+	//adds zero to the code fo the left side
+	recsMapPop(map, node -> left, code_bit_length, code);
 }
 
+HashMap* buildHashMap(HuffmanTreeNode *root, int size){
+
+	HashMap *map = HashMap_create(size);	
+
+	recsMapPop(&map, root, 0, 0x0000);
+
+	return map;
+
+}
 
 int main (int argc, char *argv[]){
 	//printf("%s\n", argv[1]);

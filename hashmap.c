@@ -1,15 +1,15 @@
 #include <stdlib.h>
 #include "hashmap.h"
 
-int hash(int map_size, char key);
+int hash(int map_size, unsigned char key);
 
 
-Entry* Entry_create	(char key){
+Entry* Entry_create(unsigned char key, void* data, int data_bit_length){
 	Entry *newEntry = malloc(sizeof(Entry));
 
 	newEntry 	-> key 			= key;
-	newEntry	-> data 		= NULL;
-	newEntry 	-> bit_length 	= 0;
+	newEntry	-> data 		= data;
+	newEntry 	-> bit_length 	= data_bit_length;
 	newEntry	-> next 		= NULL;
 
 	return newEntry;
@@ -38,17 +38,17 @@ HashMap* HashMap_create(int size){
 
 }
 
-int hash(int map_size, char key){
+int hash(int map_size, unsigned char key){
 	return key % map_size;
 }
 
-void HashMap_put(HashMap **map, char key, void *data){
+void HashMap_put(HashMap **map, unsigned char key, void *data, int data_bit_length){
 
 	HashMap *m = *map;
 	int map_size = m -> size;
 	int hashed_key = hash(map_size, key);
 
-	Entry *newEntry = Entry_create(key);
+	Entry *newEntry = Entry_create(key, data, data_bit_length);
 	Entry **entries = m -> entries;  
 
 	//if null add new entry
@@ -68,7 +68,7 @@ void HashMap_put(HashMap **map, char key, void *data){
 
 }
 
-Entry* HashMap_get(HashMap **map, char key){
+Entry* HashMap_get(HashMap **map, unsigned char key){
 
 	HashMap *m = *map;
 	int map_size = m -> size;
