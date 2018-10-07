@@ -9,6 +9,7 @@
 void 				addOccurrence		(DynamicList **list, char c);
 void 				printOccurrences	(void **occurrences, int list_size);
 HuffmanTreeNode* 	buildTree			(Occurrence **occurrences, int list_size, int total_chars);
+HashMap*			buildHashMap		(HuffmanTreeNode *root, int size);
 void 				readInFile			(char *fileName);
 
 int cmpfunc (const void *a, const void *b) {
@@ -178,6 +179,25 @@ HuffmanTreeNode* buildTree(Occurrence **occurrences, int list_size, int total_ch
 	}
 	*/
 	
+}
+
+HashMap* buildHashMap(HuffmanTreeNode *root, int size){
+
+	HashMap *map = HashMap_create(size);
+
+	while()
+
+}
+
+void resMapPop(HashMap **map, HuffmanTreeNode *node, int code_bit_length, unsigned int code){
+	if(node == NULL){
+		return;
+	}
+
+	code = 
+
+	resMapPop(node -> left	, 0, NULL, 0);
+	resMapPop(node -> right	, 0, NULL, 1);
 }
 
 
