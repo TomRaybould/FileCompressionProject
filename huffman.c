@@ -4,14 +4,17 @@
 #include "huffman.h"
 #include "huffman_tree.h"
 #include "dynamic_list.h"
+#include "bitree.h"
+#include "heap.h"
 #include "hashmap.h"
 
-void 				addOccurrence		(DynamicList *list, char c);
+void 				addOccurrence		(DynamicList *list, unsigned char c);
 void 				printOccurrences	(void **occurrences, int list_size);
 HuffmanTreeNode* 	buildTree			(Occurrence **occurrences, int list_size, int total_chars);
 HashMap*			buildHashMap		(HuffmanTreeNode *root, int size);
 void 				recsMapPop			(HashMap **map, HuffmanTreeNode *node, int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
+BiTree* build_tree(DynamicList *occ_list);
 
 int cmpfunc (const void *a, const void *b) {
 	Occurrence **occ_ap = (Occurrence**)(a);
@@ -72,6 +75,13 @@ void readInFile(char *fileName){
 
 	qsort((occ_list -> data), (size_t) occ_list -> size, (sizeof(void *)), cmpfunc);
 
+	for(int i = 0; i < occ_list -> size; i ++){
+		void **data = occ_list -> data;
+		Occurrence *occurrence = (Occurrence *) data[i];
+		double weight = occurrence -> numOfOccurrences / (double)total_chars;
+		occurrence -> weight = weight;
+	}
+
 	printOccurrences((occ_list -> data), occ_list -> size);
 
 	buildTree((Occurrence**)(occ_list -> data), occ_list -> size, total_chars);
@@ -82,7 +92,7 @@ void readInFile(char *fileName){
 
 }
 
-void addOccurrence(DynamicList *list, char c){
+void addOccurrence(DynamicList *list, unsigned char c){
 	int list_size = list -> size;
 	Occurrence **data =((Occurrence **) (list -> data));
 	
@@ -107,7 +117,75 @@ void printOccurrences(void **occurrences, int list_size){
 		Occurrence *occurrence = (Occurrence(*))occurrences[i];
 		printf("%c %d\n", occurrence->value, occurrence -> numOfOccurrences);
 	}
+}
 
+int comp_occ(void *o1, void *o2){
+
+	Occurrence *occ1 = (Occurrence *)o1;
+	Occurrence *occ2 = (Occurrence *)o2;
+
+	return (int) (occ1 -> weight - occ2 -> weight);
+
+}
+
+
+int tree_comp(void *t1, void *t2){
+
+    BiTree *tree_1 = (BiTree *) t1;
+    BiTree *tree_2 = (BiTree *) t2;
+
+    return comp_occ(tree_1 -> root -> data, tree_2 -> root -> data);
+
+}
+
+
+BiTree* build_tree(DynamicList *occ_list){
+
+    int list_size = occ_list -> size;
+    void **data = occ_list -> data;
+
+    Heap *heap = malloc(sizeof(Heap));
+
+    Heap_init(heap, list_size, BiTree_destroy, tree_comp);
+
+    for(int i = 0; i < list_size; i++){
+
+    	BiTree *tree = malloc(sizeof(BiTree));
+    	BiTree_init(tree, destroyOccurrence);
+
+    	BiTree_ins_left(tree, NULL, data[i]);
+
+    	Heap_push(heap, tree);
+
+    }
+
+	while(heap -> size > 0){
+
+		BiTree *tree1, *tree2;
+
+		Heap_pop(heap, (void **) &tree1);
+		Heap_pop(heap, (void **) &tree2);
+
+		Occurrence *occ1 = tree1 -> root -> data;
+		Occurrence *occ2 = tree2 -> root -> data;
+
+		Occurrence *occ = malloc(sizeof(Occurrence));
+
+		occ -> weight = occ1 -> weight + occ2 -> weight;
+
+		BiTree *merged = malloc(sizeof(BiTree));
+
+		BiTree_merge(merged, occ, tree1, tree2);
+
+		Heap_push(heap, merged);
+
+	}
+
+	void *result;
+
+	Heap_pop(heap, &result);
+
+	return result;
 }
 
 HuffmanTreeNode* buildTree(Occurrence **occurrences, int list_size, int total_chars){

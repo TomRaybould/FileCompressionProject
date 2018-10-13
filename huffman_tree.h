@@ -30,8 +30,10 @@ void 				HuffmanNodeHeap_print	(HuffmanNodeHeap *heap);
 
 struct Occurrence_
 {
-	char value;
-	int  numOfOccurrences; 
+	unsigned char value;
+	int  numOfOccurrences;
+	double weight;
+
 };
 
 

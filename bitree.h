@@ -29,6 +29,6 @@ void        BiTree_rem_right    (BiTree *tree, BiTreeNode *parent_node);
 int         BiTree_merge        (BiTree *merged, void *merged_data, BiTree *left, BiTree *right);
 BiTreeNode* BiTree_root         (BiTree *tree);
 int         BiTree_size         (BiTree *tree);
-void        BiTree_destory      (BiTree *tree);
+void        BiTree_destroy      (void *tree);
 
 #endif

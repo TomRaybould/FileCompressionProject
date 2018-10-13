@@ -99,6 +99,8 @@ int BiTree_merge(BiTree* merged, void *merged_data, BiTree *left, BiTree *right)
     new_node -> left    = BiTree_root(left);
     new_node -> right   = BiTree_root(right);
 
+    merged -> root = new_node;
+
     left -> root = NULL;
     left -> size = 0;
 
@@ -180,7 +182,7 @@ BiTreeNode* BiTree_root(BiTree *tree){
     return tree -> root;
 }
 
-void BiTree_destory(BiTree *tree){
+void BiTree_destroy(void *tree){
 
     BiTree_rem_right(tree, NULL);
 
