@@ -11,9 +11,6 @@ struct BiTreeNode_
 
 typedef struct BiTreeNode_ BiTreeNode;
 
-int BiTreeNode_init(BiTreeNode** inited_node, void *data, BiTreeNode* left, BiTreeNode *right);
-
-
 struct BiTree_
 {
     int         size;
@@ -23,9 +20,15 @@ struct BiTree_
 
 typedef struct BiTree_ BiTree;
 
-int         BiTree_init(BiTree* tree, int size, BiTreeNode root, void (*destroy_data)(void* data));
-BiTreeNode* BiTree_root(BiTree* tree);
-int         BiTree_size(BiTree* tree);
-int         BiTree_destory(BiTree *tree);
+
+int         BiTree_init         (BiTree *tree, void (*destroy_data)(void *data));
+int         BiTree_ins_left     (BiTree *tree, BiTreeNode *parent_node, void *data);
+int         BiTree_ins_right    (BiTree *tree, BiTreeNode *parent_node, void *data);
+void        BiTree_rem_left     (BiTree *tree, BiTreeNode *parent_node);
+void        BiTree_rem_right    (BiTree *tree, BiTreeNode *parent_node);
+int         BiTree_merge        (BiTree *merged, void *merged_data, BiTree *left, BiTree *right);
+BiTreeNode* BiTree_root         (BiTree *tree);
+int         BiTree_size         (BiTree *tree);
+void        BiTree_destory      (BiTree *tree);
 
 #endif
