@@ -4,10 +4,10 @@
 
 struct DynamicList_
 {
-	void 		(*destroyElement)(void* data);
-	int 		size;
-	void 		** data;
-	int 		_capacity;
+	void 	(*destroy_element)(void* data);
+	int     size;
+	void    ** data;
+	int 	_capacity;
 };
 
 

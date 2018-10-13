@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "huffman_tree.h"
+#include "bitree.h"
 
 void sift_up	(HuffmanNodeHeap **heap, int position);
 void sift_down	(HuffmanNodeHeap **heap, int position);

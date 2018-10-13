@@ -4,7 +4,7 @@
 #include "dynamic_list.h"
 
 
-int DynamicList_init(DynamicList *list, int init_capacity, void (*destroyElement)(void *)){
+int DynamicList_init(DynamicList *list, int init_capacity, void (*destroy_element)(void *)){
 
 	void *data = malloc((sizeof(void *)) * init_capacity);
 
@@ -15,7 +15,7 @@ int DynamicList_init(DynamicList *list, int init_capacity, void (*destroyElement
 	list -> size 			= 0;
 	list -> data 			= data;
 	list -> _capacity 		= init_capacity;
-	list -> destroyElement 	= destroyElement;
+	list -> destroy_element 	= destroy_element;
 
 	return 0;
 
@@ -67,7 +67,7 @@ int DynamicList_destroy	(DynamicList *list){
 
 	int list_size = list -> size;
 	void **data	= list -> data;
-	void (*destroyElement)(void* element) = list -> destroyElement;
+	void (*destroy_element)(void* element) = list -> destroy_element;
 
 	for(int i = 0; i < list_size; i++){
 		void *element = data[i];
@@ -76,7 +76,7 @@ int DynamicList_destroy	(DynamicList *list){
 			continue;
 		}
 
-		destroyElement(element);
+		destroy_element(element);
 
 	}
 
