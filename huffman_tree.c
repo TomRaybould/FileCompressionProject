@@ -186,3 +186,8 @@ void HuffmanTreeNode_destroy(HuffmanTreeNode *node){
 	free(node);
 }
 
+
+void destroyOccurrence(void *data){
+	free(data);
+}
+

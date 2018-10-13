@@ -6,7 +6,7 @@
 #include "dynamic_list.h"
 #include "hashmap.h"
 
-void 				addOccurrence		(DynamicList **list, char c);
+void 				addOccurrence		(DynamicList *list, char c);
 void 				printOccurrences	(void **occurrences, int list_size);
 HuffmanTreeNode* 	buildTree			(Occurrence **occurrences, int list_size, int total_chars);
 HashMap*			buildHashMap		(HuffmanTreeNode *root, int size);
@@ -36,11 +36,12 @@ void readInFile(char *fileName){
 	filelen = ftell(fileptr);           // Get the current byte offset in the file
 	rewind(fileptr);                    // Jump back to the beginning of the file
 
-	int lastIndex = 0;
+	long lastIndex = 0;
+
+	DynamicList *occ_list = malloc(sizeof(DynamicList));
 
 
-	DynamicList *dl = DynamicList_create(10);
-	DynamicList **occ_list = &dl;
+	DynamicList_init(occ_list, 10, destroyOccurrence);
 
 	int total_chars = 0;
 
@@ -52,8 +53,8 @@ void readInFile(char *fileName){
 
 		buffer = (char *)malloc((bufferSize) * sizeof(char)); // Enough memory for file + \0
 
-		fseek(fileptr, 0, SEEK_CUR + lastIndex); 
-		fread(buffer, bufferSize, 1, fileptr); // Read in the entire file
+		fseek(fileptr, 0, (int) (SEEK_CUR + lastIndex));
+		fread(buffer, (size_t) bufferSize, 1, fileptr); // Read in the entire file
 		
 		for(int i = 0; i < bufferSize; i ++){
 			addOccurrence(occ_list, buffer[i]);
@@ -67,24 +68,23 @@ void readInFile(char *fileName){
 
 	}
 
-	DynamicList *l = *occ_list;
-
 	DynamicList_trim(occ_list);
 
-	qsort((l -> data), l -> size, (sizeof(void *)), cmpfunc);
+	qsort((occ_list -> data), (size_t) occ_list -> size, (sizeof(void *)), cmpfunc);
 
-	printOccurrences((l -> data), l -> size);
+	printOccurrences((occ_list -> data), occ_list -> size);
 
-	buildTree((Occurrence**)(l -> data), l -> size, total_chars);
+	buildTree((Occurrence**)(occ_list -> data), occ_list -> size, total_chars);
+
+	DynamicList_destroy(occ_list);
 
 	fclose(fileptr); // Close the file
 
 }
 
-void addOccurrence(DynamicList **list, char c){
-	DynamicList *l = *list;
-	int list_size = l -> size;
-	Occurrence **data =((Occurrence **) (l -> data));
+void addOccurrence(DynamicList *list, char c){
+	int list_size = list -> size;
+	Occurrence **data =((Occurrence **) (list -> data));
 	
 	//add one to number of occurrences if already in list 
 	for(int i = 0; i < list_size; i++){
@@ -94,7 +94,7 @@ void addOccurrence(DynamicList **list, char c){
 			return;
 		}
 	}
-	//else add new occurence
+	//else add new occurrence
 	Occurrence *occurrence = malloc(sizeof(Occurrence));
 	occurrence -> value = c;
 	occurrence -> numOfOccurrences = 1;
@@ -157,7 +157,7 @@ HuffmanTreeNode* buildTree(Occurrence **occurrences, int list_size, int total_ch
 			HuffmanTreeNode *sub_tree_2 = HuffmanNodeHeap_pop(heap);
 
 			//combine the to lowest by make a new parent
-			int new_weight = sub_tree_1 -> weight + sub_tree_2 -> weight;
+            double new_weight = sub_tree_1 -> weight + sub_tree_2 -> weight;
 			HuffmanTreeNode *new_parent_tree = HuffmanTreeNode_create('p',
 				new_weight,
 				sub_tree_1,

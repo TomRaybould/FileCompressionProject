@@ -4,18 +4,20 @@
 
 struct DynamicList_
 {
-	int size;
-	void ** data;
-	int _capacity;
+	void 		(*destroyElement)(void* data);
+	int 		size;
+	void 		** data;
+	int 		_capacity;
 };
 
 
 typedef struct DynamicList_ DynamicList;
 
-DynamicList* 	DynamicList_create	(int init_capacity);
-void 			DynamicList_add		(DynamicList **list, void *element); 
-void 			DynamicList_trim	(DynamicList **list); 
-void 			DynamicList_print	(DynamicList **list, char* (*print_func) (void *element));
+int DynamicList_init(DynamicList *list, int init_capacity, void (*destroyElement)(void *data));
+int	DynamicList_add		(DynamicList *list, void *element);
+int DynamicList_trim	(DynamicList *list);
+int DynamicList_destroy	(DynamicList *list);
+void DynamicList_print	(DynamicList *list, char* (*print_func) (void *element));
 
 
 #endif

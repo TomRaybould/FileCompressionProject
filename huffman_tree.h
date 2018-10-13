@@ -3,7 +3,7 @@
 
 struct HuffmanTreeNode_
 {
-	char value;
+	unsigned char value;
 	double weight;
 	struct HuffmanTreeNode_ *left;
 	struct HuffmanTreeNode_ *right;
@@ -36,5 +36,7 @@ struct Occurrence_
 
 
 typedef struct Occurrence_ Occurrence;
+
+void destroyOccurrence(void *data);
 
 #endif

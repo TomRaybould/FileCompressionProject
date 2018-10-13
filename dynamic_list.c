@@ -4,55 +4,90 @@
 #include "dynamic_list.h"
 
 
-DynamicList* DynamicList_create(int init_capacity){
+int DynamicList_init(DynamicList *list, int init_capacity, void (*destroyElement)(void *)){
 
-	DynamicList* list = malloc(sizeof(DynamicList));
-	
+	void *data = malloc((sizeof(void *)) * init_capacity);
+
+	if(data == NULL){
+		return -1;
+	}
+
 	list -> size 			= 0;
-	list -> data 			= malloc((sizeof(void *)) * init_capacity);
+	list -> data 			= data;
 	list -> _capacity 		= init_capacity;
-	return list;
+	list -> destroyElement 	= destroyElement;
+
+	return 0;
 
 }
 
-void DynamicList_add(DynamicList **list, void *element){
-	DynamicList *l = *list;
+int DynamicList_add(DynamicList *list, void *element){
 
-	if(l -> size >= l -> _capacity){
+	int list_size = list -> size;
 
-		int new_capacity = (l -> _capacity) * 2;
+	if(list_size >= list -> _capacity){
 
-		l -> data = realloc(l -> data, ((sizeof(void*)) * new_capacity));
+		int new_capacity = (list -> _capacity) * 2;
 
-		l -> _capacity = new_capacity;
+		void **data = realloc(list -> data, ((sizeof(void*)) * new_capacity));
+
+		if(data == NULL){
+			return -1;
+		}
+
+		list -> data = data;
+
+		list -> _capacity = new_capacity;
 	}
 
-	(l->data)[l -> size] = element;
-	l -> size = (l -> size) + 1;
+	(list->data)[list_size] = element;
+	list -> size = list_size + 1;
+	return 0;
 }
 
-void DynamicList_trim(DynamicList **list){
+int DynamicList_trim(DynamicList *list){
 
-	DynamicList *l = *list;
+	int curr_size = list -> size;
 
-	int curr_size = l -> size;
+	void **data = realloc(list -> data, ((sizeof(void*)) * curr_size));
 
-	l -> data = realloc(l -> data, ((sizeof(void*)) * curr_size));
-
-	l -> _capacity = curr_size;
-
-	return;	
-} 
-
-void DynamicList_print(DynamicList **list, char* (*print_func) (void *element)){
-	DynamicList *l = *list;
-	void **data = l -> data;
-
-	for (int i = 0; i < l -> size; i++){
-		printf("%s\n", print_func(data[i]));
+	if(data == NULL){
+		return -1;
 	}
 
+	list -> data = data;
+
+	list -> _capacity = curr_size;
+
+	return 0;
 }
+
+
+int DynamicList_destroy	(DynamicList *list){
+
+	int list_size = list -> size;
+	void **data	= list -> data;
+	void (*destroyElement)(void* element) = list -> destroyElement;
+
+	for(int i = 0; i < list_size; i++){
+		void *element = data[i];
+
+		if(element == NULL){
+			continue;
+		}
+
+		destroyElement(element);
+
+	}
+
+	free(data);
+	free(list);
+
+	return 0;
+}
+
+
+
 
 
 
