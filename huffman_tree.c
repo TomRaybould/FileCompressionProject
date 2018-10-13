@@ -3,8 +3,8 @@
 #include "huffman_tree.h"
 #include "bitree.h"
 
-void sift_up	(HuffmanNodeHeap **heap, int position);
-void sift_down	(HuffmanNodeHeap **heap, int position);
+void sift_up_(HuffmanNodeHeap **heap, int position);
+void sift_down_(HuffmanNodeHeap **heap, int position);
 
 HuffmanNodeHeap* HuffmanNodeHeap_create(int size){	
 
@@ -26,7 +26,7 @@ void HuffmanNodeHeap_push(HuffmanNodeHeap **heap, HuffmanTreeNode *node){
 	curr_size ++;
 	h -> size = curr_size;
 
-	sift_up(heap, curr_size - 1);	
+	sift_up_(heap, curr_size - 1);
 }
 
 HuffmanTreeNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
@@ -54,14 +54,14 @@ HuffmanTreeNode* HuffmanNodeHeap_pop (HuffmanNodeHeap **heap){
 	curr_size --;
 	h -> size = curr_size;
 
-	sift_down(heap, 0);
+	sift_down_(heap, 0);
 
 	return node;
 	
 }
 
 
-void sift_up(HuffmanNodeHeap **heap, int position){
+void sift_up_(HuffmanNodeHeap **heap, int position){
 	if(position <= 0){
 		return;
 	}
@@ -83,13 +83,13 @@ void sift_up(HuffmanNodeHeap **heap, int position){
 		curr   -> value  = temp_val;
 		curr   -> weight = temp_weight;
 
-		sift_up(heap, parent_index);
+		sift_up_(heap, parent_index);
 
 	}
 
 }
 
-void sift_down(HuffmanNodeHeap **heap, int position){
+void sift_down_(HuffmanNodeHeap **heap, int position){
 	HuffmanNodeHeap *h = *heap;
 	int heap_size = h -> size;
 
@@ -132,7 +132,7 @@ void sift_down(HuffmanNodeHeap **heap, int position){
 			left_child -> value  = temp_val;
 			left_child -> weight = temp_weight;
 
-			sift_down(heap, left_child_index);
+			sift_down_(heap, left_child_index);
 		}
 	}
 	else{
@@ -147,7 +147,7 @@ void sift_down(HuffmanNodeHeap **heap, int position){
 			right_child -> value  = temp_val;
 			right_child -> weight = temp_weight;
 
-			sift_down(heap, right_child_index);
+			sift_down_(heap, right_child_index);
 		}
 	}
 }
