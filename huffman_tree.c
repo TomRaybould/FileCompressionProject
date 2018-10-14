@@ -174,7 +174,7 @@ HuffmanTreeNode* HuffmanTreeNode_create(char value, double weight, HuffmanTreeNo
 	return node;
 }
 
-//recursively destory tree from root
+//recursively destroy tree from root
 void HuffmanTreeNode_destroy(HuffmanTreeNode *node){
 	
 	if(node -> left != NULL){

@@ -14,7 +14,7 @@ HuffmanTreeNode* 	buildTree			(Occurrence **occurrences, int list_size, int tota
 HashMap*			buildHashMap		(HuffmanTreeNode *root, int size);
 void 				recsMapPop			(HashMap **map, HuffmanTreeNode *node, int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
-BiTree* build_tree(DynamicList *occ_list);
+BiTree* 			build_tree(DynamicList *occ_list);
 
 int cmpfunc (const void *a, const void *b) {
 	Occurrence **occ_ap = (Occurrence**)(a);
@@ -84,9 +84,11 @@ void readInFile(char *fileName){
 
 	printOccurrences((occ_list -> data), occ_list -> size);
 
-	buildTree((Occurrence**)(occ_list -> data), occ_list -> size, total_chars);
+	//buildTree((Occurrence**)(occ_list -> data), occ_list -> size, total_chars);
 
-	DynamicList_destroy(occ_list);
+	build_tree(occ_list);
+
+	//DynamicList_destroy(occ_list);
 
 	fclose(fileptr); // Close the file
 
@@ -138,6 +140,19 @@ int tree_comp(void *t1, void *t2){
 
 }
 
+void print_heap(Heap *heap){
+    int size = heap -> size;
+    void **data = heap -> data;
+
+    for(int i = 0; i < size; i++){
+        BiTree *tree = data[i];
+        BiTreeNode *treeNode = tree -> root;
+        Occurrence *occ = treeNode -> data;
+        printf("value: %c weight: %lf \n", occ -> value, occ -> weight);
+    }
+
+}
+
 
 BiTree* build_tree(DynamicList *occ_list){
 
@@ -148,14 +163,17 @@ BiTree* build_tree(DynamicList *occ_list){
 
     Heap_init(heap, list_size, BiTree_destroy, tree_comp);
 
-    for(int i = 0; i < list_size; i++){
+    for(int i = 0; i < list_size; i++) {
 
-    	BiTree *tree = malloc(sizeof(BiTree));
-    	BiTree_init(tree, destroyOccurrence);
+        BiTree *tree = malloc(sizeof(BiTree));
+        BiTree_init(tree, destroyOccurrence);
 
-    	BiTree_ins_left(tree, NULL, data[i]);
+        BiTree_ins_left(tree, NULL, data[i]);
 
-    	Heap_push(heap, tree);
+        Heap_push(heap, tree);
+
+        printf("%s", "\n");
+        print_heap(heap);
 
     }
 
