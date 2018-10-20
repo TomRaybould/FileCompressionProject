@@ -7,6 +7,7 @@
 #include "bitree.h"
 #include "heap.h"
 #include "hashmap.h"
+#include "bit_ops.h"
 
 void 				addOccurrence		(DynamicList *list, unsigned char c);
 void 				printOccurrences	(void **occurrences, int list_size);
@@ -292,9 +293,7 @@ unsigned char* compress(unsigned char* input, int total_chars, HashMap *map){
 
 	for(input_pos = 0; input_pos < total_chars; input_pos++){
 
-		if(output_pos % 8 == 0){
-			output = realloc(output, (output_pos / 8) + 1);
-		}
+	    unsigned char *c = &input[input_pos];
 
 		HuffmanMapData *huffmanMapData;
 
@@ -302,9 +301,22 @@ unsigned char* compress(unsigned char* input, int total_chars, HashMap *map){
 
 		//printf("%c, %d \n", input[input_pos], huffmanMapData ->bit_length);
 
-		if(input_pos == 10){
-            break;
+		for(int j = 0; j < huffmanMapData -> bit_length; j++){
+
+            if(output_pos % 8 == 0){
+                output = realloc(output, (output_pos / 8) + 1);
+            }
+
+            int int_size = sizeof(int);
+            int tar_bit_idx  = int_size - (huffmanMapData -> bit_length + j);
+
+            int bit = bit_get(c, tar_bit_idx);
+            bit_set(output, output_pos, bit);
+
+            output_pos++;
 		}
+
+
 	}
     return output;
 }
