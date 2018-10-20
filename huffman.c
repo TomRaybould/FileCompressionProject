@@ -10,11 +10,10 @@
 
 void 				addOccurrence		(DynamicList *list, unsigned char c);
 void 				printOccurrences	(void **occurrences, int list_size);
-HuffmanTreeNode* 	buildTree			(Occurrence **occurrences, int list_size, int total_chars);
 HashMap*			buildHashMap		(HuffmanTreeNode *root, int size);
 void 				recsMapPop			(HashMap *map, HuffmanTreeNode *node, int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
-BiTree* 			build_tree(DynamicList *occ_list);
+BiTree* 			build_tree          (DynamicList *occ_list);
 
 int cmpfunc (const void *a, const void *b) {
 	Occurrence **occ_ap = (Occurrence**)(a);
@@ -206,77 +205,6 @@ BiTree* build_tree(DynamicList *occ_list){
 	return result;
 }
 
-HuffmanTreeNode* buildTree(Occurrence **occurrences, int list_size, int total_chars){
-
-	HuffmanNodeHeap **heap;
-
-	//testing heap logic
-	int size = 15;
-
-	HuffmanNodeHeap *h = (HuffmanNodeHeap_create(size));
-
-	heap = &h;
-
-	for(int i = 0; i < list_size; i++){
-		
-		Occurrence *occurrence = occurrences[i];
-
-		double weight = (double) occurrence -> numOfOccurrences / (double) total_chars;
-
-		HuffmanTreeNode *node = HuffmanTreeNode_create(
-			occurrence -> value,
-			weight,
-			NULL,
-			NULL);
-
-		HuffmanNodeHeap_push(heap, node);
-		
-	}
-
-	printf("%s\n", "");
-
-	HuffmanNodeHeap_print(*heap);
-
-	int heap_size = (*heap) -> size;
-
-	while(heap_size > 0){
-
-		heap_size = (*heap) -> size;
-		
-		if(heap_size < 2){
-			//the tree is complete
-			return HuffmanNodeHeap_pop(heap);
-		}
-		else{
-			//pick the 2 lowest from the heap
-			HuffmanTreeNode *sub_tree_1 = HuffmanNodeHeap_pop(heap);
-			HuffmanTreeNode *sub_tree_2 = HuffmanNodeHeap_pop(heap);
-
-			//combine the to lowest by make a new parent
-            double new_weight = sub_tree_1 -> weight + sub_tree_2 -> weight;
-			HuffmanTreeNode *new_parent_tree = HuffmanTreeNode_create('p',
-				new_weight,
-				sub_tree_1,
-				sub_tree_2);
-
-			HuffmanNodeHeap_push(heap, new_parent_tree);
-
-		}
-
-	}
-
-	return HuffmanNodeHeap_pop(heap);
-
-	/*
-	while(node != NULL){
-		HuffmanTreeNode_destroy(node);
-		node = HuffmanNodeHeap_pop(heap);
-		HuffmanNodeHeap_print(*heap);
-		printf("%s\n", "");
-	}
-	*/
-	
-}
 
 void recsMapPop(HashMap *map, HuffmanTreeNode *node, int code_bit_length, unsigned int code){
 	if(node == NULL){
