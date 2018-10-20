@@ -13,6 +13,8 @@ void 				printOccurrences	(void **occurrences, int list_size);
 HashMap*			buildHashMap		(BiTree *tree);
 void 				recsMapPop			(HashMap *map, BiTreeNode *node, int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
+unsigned char *     compress            (unsigned char* input, int total_chars);
+void                writeToFile         ();
 BiTree* 			build_tree          (DynamicList *occ_list);
 
 int cmpfunc (const void *a, const void *b) {
@@ -30,7 +32,6 @@ void readInFile(char *fileName){
 	FILE *fileptr;
 	unsigned char *buffer;
 	long filelen;
-	long bufferSize = 2048;
 
 	//printf("%s\n", fileName);
 	fileptr = fopen(fileName, "rb");  	// Open the file in binary mode
@@ -47,27 +48,15 @@ void readInFile(char *fileName){
 
 	int total_chars = 0;
 
-	while(lastIndex < filelen){
+	buffer = (unsigned char *)malloc((filelen) * sizeof(unsigned char)); // Enough memory for file + \0
 
-		if(bufferSize > filelen - lastIndex){
-			bufferSize = filelen - lastIndex;
-		}
-
-		buffer = (unsigned char *)malloc((bufferSize) * sizeof(unsigned char)); // Enough memory for file + \0
-
-		fseek(fileptr, 0, (int) (SEEK_CUR + lastIndex));
-		fread(buffer, (size_t) bufferSize, 1, fileptr); // Read in the entire file
+	fseek(fileptr, 0, (int) (SEEK_CUR + lastIndex));
+	fread(buffer, (size_t) filelen, 1, fileptr); // Read in the entire file
 		
-		for(int i = 0; i < bufferSize; i ++){
-			addOccurrence(occ_list, buffer[i]);
-			total_chars++;
-			//printf("%c", buffer[i]);
-		}
-
-		lastIndex = lastIndex + bufferSize;
-
-		free(buffer);
-
+	for(int i = 0; i < filelen; i ++){
+	    addOccurrence(occ_list, buffer[i]);
+	    total_chars++;
+	    //printf("%c", buffer[i]);
 	}
 
 	DynamicList_trim(occ_list);
@@ -178,7 +167,7 @@ BiTree* build_tree(DynamicList *occ_list){
 
     }
 
-	while(heap -> size > 0){
+	while(heap -> size > 1){
 
 		BiTree *tree1, *tree2;
 
