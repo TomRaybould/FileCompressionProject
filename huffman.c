@@ -10,8 +10,8 @@
 
 void 				addOccurrence		(DynamicList *list, unsigned char c);
 void 				printOccurrences	(void **occurrences, int list_size);
-HashMap*			buildHashMap		(HuffmanTreeNode *root, int size);
-void 				recsMapPop			(HashMap *map, HuffmanTreeNode *node, int code_bit_length, unsigned int code);
+HashMap*			buildHashMap		(BiTree *tree);
+void 				recsMapPop			(HashMap *map, BiTreeNode *node, int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
 BiTree* 			build_tree          (DynamicList *occ_list);
 
@@ -28,7 +28,7 @@ Reads in the file using a buffer and spits out a char array representing the fil
 */
 void readInFile(char *fileName){
 	FILE *fileptr;
-	char *buffer;
+	unsigned char *buffer;
 	long filelen;
 	long bufferSize = 2048;
 
@@ -53,7 +53,7 @@ void readInFile(char *fileName){
 			bufferSize = filelen - lastIndex;
 		}
 
-		buffer = (char *)malloc((bufferSize) * sizeof(char)); // Enough memory for file + \0
+		buffer = (unsigned char *)malloc((bufferSize) * sizeof(unsigned char)); // Enough memory for file + \0
 
 		fseek(fileptr, 0, (int) (SEEK_CUR + lastIndex));
 		fread(buffer, (size_t) bufferSize, 1, fileptr); // Read in the entire file
@@ -85,7 +85,9 @@ void readInFile(char *fileName){
 
 	//buildTree((Occurrence**)(occ_list -> data), occ_list -> size, total_chars);
 
-	build_tree(occ_list);
+	BiTree *tree = build_tree(occ_list);
+
+	buildHashMap(tree);
 
 	//DynamicList_destroy(occ_list);
 
@@ -206,7 +208,7 @@ BiTree* build_tree(DynamicList *occ_list){
 }
 
 
-void recsMapPop(HashMap *map, HuffmanTreeNode *node, int code_bit_length, unsigned int code){
+void recsMapPop(HashMap *map, BiTreeNode *node, int code_bit_length, unsigned int code){
 	if(node == NULL){
 		return;
 	}
@@ -214,7 +216,8 @@ void recsMapPop(HashMap *map, HuffmanTreeNode *node, int code_bit_length, unsign
 	//only for leaf nodes
 	if(code_bit_length > 0 && node -> right == NULL && node -> left == NULL){
 		int *data = malloc(sizeof(int));
-		HashMap_put(map, node -> value, data);
+		Occurrence *occurrence = (Occurrence*) node -> data;
+		HashMap_put(map, occurrence -> value, data);
 	}
 
 	code = code << 1;
@@ -230,13 +233,13 @@ void free_data(void *data){
     free(data);
 }
 
-HashMap* buildHashMap(HuffmanTreeNode *root, int size){
+HashMap* buildHashMap(BiTree *tree){
 
     void (*destroy_data)(void*) = free_data;
 
-	HashMap *map = HashMap_create(size, destroy_data);
+	HashMap *map = HashMap_create(255, destroy_data);
 
-	recsMapPop(map, root, 0, 0x0000);
+	recsMapPop(map, tree -> root, 0, 0x0000);
 
 	return map;
 
