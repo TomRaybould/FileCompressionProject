@@ -13,7 +13,7 @@ void 				printOccurrences	(void **occurrences, int list_size);
 HashMap*			buildHashMap		(BiTree *tree);
 void 				recsMapPop			(HashMap *map, BiTreeNode *node, int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
-unsigned char *     compress            (unsigned char* input, int total_chars);
+unsigned char *     compress            (unsigned char* input, int total_chars, HashMap* map);
 void                writeToFile         ();
 BiTree* 			build_tree          (DynamicList *occ_list);
 
@@ -233,6 +233,18 @@ HashMap* buildHashMap(BiTree *tree){
 	return map;
 
 }
+
+unsigned char* compress(unsigned char* input, int total_chars, HashMap *map){
+
+	unsigned char *output = malloc(sizeof(char));
+	int input_pos = 0;
+	int output_pos = 0;
+
+
+
+}
+
+
 
 int main (int argc, char *argv[]){
 	//printf("%s\n", argv[1]);
