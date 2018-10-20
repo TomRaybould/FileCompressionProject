@@ -11,7 +11,7 @@
 void 				addOccurrence		(DynamicList *list, unsigned char c);
 void 				printOccurrences	(void **occurrences, int list_size);
 HashMap*			buildHashMap		(BiTree *tree);
-void 				recsMapPop			(HashMap *map, BiTreeNode *node, int code_bit_length, unsigned int code);
+void 				recsMapPop			(HashMap *map, BiTreeNode *node,unsigned int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
 unsigned char *     compress            (unsigned char* input, int total_chars, HashMap* map);
 void                writeToFile         ();
@@ -44,7 +44,7 @@ void readInFile(char *fileName){
 	DynamicList *occ_list = malloc(sizeof(DynamicList));
 
 
-	DynamicList_init(occ_list, 10, destroyOccurrence);
+	DynamicList_init(occ_list, 10, destroy_occurrence);
 
 	int total_chars = 0;
 
@@ -76,10 +76,12 @@ void readInFile(char *fileName){
 
 	BiTree *tree = build_tree(occ_list);
 
-	buildHashMap(tree);
+	HashMap *map = buildHashMap(tree);
+
+	compress(buffer, total_chars, map);
 
 	//DynamicList_destroy(occ_list);
-
+	free(buffer);
 	fclose(fileptr); // Close the file
 
 }
@@ -116,7 +118,18 @@ int comp_occ(void *o1, void *o2){
 	Occurrence *occ1 = (Occurrence *)o1;
 	Occurrence *occ2 = (Occurrence *)o2;
 
-	return (int) (occ1 -> weight - occ2 -> weight);
+	double weight1 = occ1 -> weight;
+	double weight2 = occ2 -> weight;
+
+	if(weight1 == weight2){
+        return 0;
+	}
+	if(weight1 > weight2){
+        return 1;
+	}
+	else{
+        return -1;
+	}
 
 }
 
@@ -151,41 +164,54 @@ BiTree* build_tree(DynamicList *occ_list){
 
     Heap *heap = malloc(sizeof(Heap));
 
-    Heap_init(heap, list_size, BiTree_destroy, tree_comp);
+    Heap_init(heap, list_size, BiTree_destroy, tree_comp, (void (*)(void *)) BiTree_level_order_print);
 
     for(int i = 0; i < list_size; i++) {
 
         BiTree *tree = malloc(sizeof(BiTree));
-        BiTree_init(tree, destroyOccurrence);
+        BiTree_init(tree, destroy_occurrence, print_occurrence);
 
         BiTree_ins_left(tree, NULL, data[i]);
 
         Heap_push(heap, tree);
 
-        printf("%s", "\n");
-        print_heap(heap);
-
     }
+    printf("%s", "\n");
+    print_heap(heap);
+    printf("\n");
 
 	while(heap -> size > 1){
 
 		BiTree *tree1, *tree2;
 
 		Heap_pop(heap, (void **) &tree1);
-		Heap_pop(heap, (void **) &tree2);
+        Occurrence *occ1 = tree1 -> root -> data;
+        print_occurrence(occ1);
+        printf("\n");
 
-		Occurrence *occ1 = tree1 -> root -> data;
-		Occurrence *occ2 = tree2 -> root -> data;
+        Heap_print(heap);
+        printf("\n");
+
+        Heap_pop(heap, (void **) &tree2);
+        Occurrence *occ2 = tree2 -> root -> data;
+		print_occurrence(occ2);
+        printf("\n");
+
+		Heap_print(heap);
+        printf("\n");
 
 		Occurrence *occ = malloc(sizeof(Occurrence));
 
 		occ -> weight = occ1 -> weight + occ2 -> weight;
+		occ -> value = 'x';
 
 		BiTree *merged = malloc(sizeof(BiTree));
 
 		BiTree_merge(merged, occ, tree1, tree2);
 
 		Heap_push(heap, merged);
+        Heap_print(heap);
+
 
 	}
 
@@ -193,42 +219,61 @@ BiTree* build_tree(DynamicList *occ_list){
 
 	Heap_pop(heap, &result);
 
+	BiTree_level_order_print(result);
+
 	return result;
 }
 
 
-void recsMapPop(HashMap *map, BiTreeNode *node, int code_bit_length, unsigned int code){
+void recsMapPop(HashMap *map, BiTreeNode *node, unsigned int code_bit_length, unsigned int code){
 	if(node == NULL){
 		return;
 	}
 
 	//only for leaf nodes
 	if(code_bit_length > 0 && node -> right == NULL && node -> left == NULL){
-		int *data = malloc(sizeof(int));
+		HuffmanMapData *data    = malloc(sizeof(HuffmanMapData));
+		data -> code	        = htonl(code);
+		data -> bit_length      = code_bit_length;
+
 		Occurrence *occurrence = (Occurrence*) node -> data;
+
+		printf("%c, %d \n", occurrence -> value, data -> bit_length);
+
 		HashMap_put(map, occurrence -> value, data);
+	}else{
+	    printf("bit length: %d\n", code_bit_length);
 	}
 
 	code = code << 1;
-	code_bit_length++;
 
 	//adds one to the code for the right side
-	recsMapPop(map, node -> right, code_bit_length, code | 0x0001);
+	recsMapPop(map, node -> right, code_bit_length + 1, code | 0x0001);
 	//adds zero to the code fo the left side
-	recsMapPop(map, node -> left, code_bit_length, code);
+	recsMapPop(map, node -> left, code_bit_length + 1, code);
 }
 
 void free_data(void *data){
     free(data);
 }
 
+void HuffmanMapData_print(void* data){
+	HuffmanMapData *huffmanMapData = data;
+	printf("%d, ", huffmanMapData -> code);
+	printf("%d", huffmanMapData -> bit_length);
+}
+
 HashMap* buildHashMap(BiTree *tree){
+
+    BiTree_level_order_print(tree);
 
     void (*destroy_data)(void*) = free_data;
 
-	HashMap *map = HashMap_create(255, destroy_data);
+	HashMap *map = HashMap_create(255, destroy_data, HuffmanMapData_print);
 
 	recsMapPop(map, tree -> root, 0, 0x0000);
+
+	HashMap_print(map);
 
 	return map;
 
@@ -236,12 +281,32 @@ HashMap* buildHashMap(BiTree *tree){
 
 unsigned char* compress(unsigned char* input, int total_chars, HashMap *map){
 
+	unsigned int input_pos 	= 0;
+	unsigned int output_pos = 0;
+
 	unsigned char *output = malloc(sizeof(char));
-	int input_pos = 0;
-	int output_pos = 0;
 
+	if(output == NULL){
+		return NULL;
+	}
 
+	for(input_pos = 0; input_pos < total_chars; input_pos++){
 
+		if(output_pos % 8 == 0){
+			output = realloc(output, (output_pos / 8) + 1);
+		}
+
+		HuffmanMapData *huffmanMapData;
+
+		HashMap_get(map, input[input_pos], (void **) &huffmanMapData);
+
+		//printf("%c, %d \n", input[input_pos], huffmanMapData ->bit_length);
+
+		if(input_pos == 10){
+            break;
+		}
+	}
+    return output;
 }
 
 

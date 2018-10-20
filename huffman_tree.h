@@ -39,6 +39,7 @@ struct Occurrence_
 
 typedef struct Occurrence_ Occurrence;
 
-void destroyOccurrence(void *data);
+void destroy_occurrence(void *data);
+void print_occurrence(void *data);
 
 #endif

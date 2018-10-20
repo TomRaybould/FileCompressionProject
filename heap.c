@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <printf.h>
 #include "heap.h"
 
 void sift_up	(Heap *heap, int position);
@@ -8,7 +9,7 @@ int  parent(int pos);
 int  right_child(int pos);
 int  left_child(int pos);
 
-int Heap_init(Heap *heap, int capacity, void (*destroy_data)(void *), int (*compare_data)(void *, void *)){
+int Heap_init(Heap *heap, int capacity, void (*destroy_data)(void *), int (*compare_data)(void *, void *), void (*print_data)(void *)){
 
     void **data = malloc(sizeof(void *) * capacity);
 
@@ -18,6 +19,7 @@ int Heap_init(Heap *heap, int capacity, void (*destroy_data)(void *), int (*comp
 
     heap -> data = data;
     heap -> size = 0;
+    heap -> print_data = print_data;
     heap -> destroy_data = destroy_data;
     heap -> compare_data = compare_data;
 
@@ -72,7 +74,7 @@ void Heap_pop(Heap *heap, void **data){
         return;
     }
 
-    *data = (heap -> data)[0];
+    *data = ((heap -> data)[0]);
 
     heap -> size--;
 
@@ -104,10 +106,10 @@ void sift_down	(Heap *heap, int curr_pos){
     void *left_child  = NULL;
     void *curr_node   = data[curr_pos];
 
-    if(left_child_index <= heap_size){
+    if(left_child_index < heap_size){
         left_child = data[left_child_index];
     }
-    if(right_child_index <= heap_size){
+    if(right_child_index < heap_size){
         right_child = data[right_child_index];
     }
 
@@ -119,9 +121,9 @@ void sift_down	(Heap *heap, int curr_pos){
     int (*compFun)(void *, void *) = heap -> compare_data;
 
     if(right_child == NULL ||
-       compFun(left_child, right_child) <= 0){
+       compFun(right_child, left_child) > 0){
 
-        if(compFun(left_child, curr_node) <= 0){
+        if(compFun(curr_node, left_child) > 0){
             void *temp = left_child;
             data[left_child_index] = curr_node;
             data[curr_pos] = temp;
@@ -129,12 +131,30 @@ void sift_down	(Heap *heap, int curr_pos){
         }
     }
     else{
-        if(compFun(right_child, curr_node) <= 0){
+        if(compFun(curr_node, right_child) > 0){
             void *temp = right_child;
             data[right_child_index] = curr_node;
             data[curr_pos] = temp;
             sift_down(heap, right_child_index);
         }
+    }
+
+}
+
+void Heap_print (Heap *heap){
+
+    printf("Printing Heap... \n");
+
+    int size = heap -> size;
+    if(size < 1){
+        return;
+    }
+
+    void **data = heap -> data;
+
+    for(int i = 0; i < size; i ++){
+        heap -> print_data(data[i]);
+        printf("\n");
     }
 
 }

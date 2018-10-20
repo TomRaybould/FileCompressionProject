@@ -1,11 +1,13 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "bitree.h"
 
-int BiTree_init(BiTree* tree, void (*destroy_data)(void *)){
+int BiTree_init(BiTree* tree, void (*destroy_data)(void *), void (*print_data)(void *)){
 
     tree -> size            = 0;
     tree -> destroy_data    = destroy_data;
     tree -> root            = NULL;
+    tree -> print_data      = print_data;
 
     return 0;
 }
@@ -87,7 +89,7 @@ int BiTree_ins_right(BiTree* tree, BiTreeNode *parent_node, void *data){
 
 int BiTree_merge(BiTree* merged, void *merged_data, BiTree *left, BiTree *right) {
 
-    BiTree_init(merged, left -> destroy_data);
+    BiTree_init(merged, left -> destroy_data, left -> print_data);
 
     BiTreeNode *new_node = malloc(sizeof(BiTreeNode));
 
@@ -100,6 +102,7 @@ int BiTree_merge(BiTree* merged, void *merged_data, BiTree *left, BiTree *right)
     new_node -> right   = BiTree_root(right);
 
     merged -> root = new_node;
+    merged -> size = BiTree_size(left) + BiTree_size(right) + 1;
 
     left -> root = NULL;
     left -> size = 0;
@@ -173,6 +176,71 @@ void BiTree_rem_right(BiTree *tree, BiTreeNode *parent_node){
     }
 
 }
+
+void print_inorder_recursive(BiTreeNode *node, void (*print_data)(void *)){
+    if(node == NULL){
+        return;
+    }
+
+    print_inorder_recursive(node -> left, print_data);
+    print_data(node -> data);
+    printf("\n");
+    print_inorder_recursive(node -> right, print_data);
+}
+
+void BiTree_inorder_print(BiTree *tree){
+    printf("Printing BiTree in order...\n");
+
+    if(tree -> print_data == NULL){
+        printf("No print function provided\n\n");
+        return;
+    }
+
+    print_inorder_recursive(tree -> root, tree -> print_data);
+
+}
+
+void pop_level_order_recursive(BiTreeNode *node, BiTreeNode **nodes, int index){
+    if(node == NULL){
+        return;
+    }
+
+    nodes[index] = node;
+
+    pop_level_order_recursive(node -> left, nodes, (index * 2) + 1);
+    pop_level_order_recursive(node -> right, nodes, (index * 2) + 2);
+
+}
+
+
+void BiTree_level_order_print(BiTree *tree){
+    printf("Printing BiTree level order...\n");
+
+    if(tree -> print_data == NULL){
+        printf("No print function provided\n\n");
+        return;
+    }
+
+    int tree_size = 20;
+    printf("tree size%d\n", tree -> size);
+
+    BiTreeNode **nodes = malloc(sizeof(BiTreeNode*) * tree_size);
+
+    pop_level_order_recursive(tree -> root, nodes, 0);
+
+    for(int i = 0; i < tree_size; i++){
+        printf("%d: ", i);
+
+        if(nodes[i] == NULL){
+            printf("NULL\n");
+            continue;
+        }
+
+        tree -> print_data(nodes[i] -> data);
+        printf("\n");
+    }
+}
+
 
 int BiTree_size(BiTree *tree){
     return tree -> size;

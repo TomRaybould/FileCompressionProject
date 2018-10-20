@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "hashmap.h"
 
 int hash(int map_size, unsigned char key);
@@ -14,7 +15,7 @@ Entry* Entry_create(unsigned char key, void *data){
 	return newEntry;
 }
 
-HashMap* HashMap_create(int size, void (*destroy_data)(void *)){
+HashMap* HashMap_create(int size, void (*destroy_data)(void *), void (*print_data)(void *)){
 
 	Entry **entries 	= malloc(sizeof(Entry*) * size);
 	HashMap *map		= malloc(sizeof(HashMap));
@@ -23,6 +24,7 @@ HashMap* HashMap_create(int size, void (*destroy_data)(void *)){
 		entries[i] = NULL;
 	}
 
+	map -> print_data	= print_data;
 	map -> destroy_data = destroy_data;
 	map -> size 		= size;
 	map -> entries 		= entries;
@@ -50,17 +52,18 @@ void HashMap_put(HashMap *map, unsigned char key, void *data){
 	}
 
 	//go to the end of the entry listed list add to last element
-	Entry *curr = entries[hashed_key];
+	Entry **curr = &(entries[hashed_key]);
 	
-	while(curr -> next != NULL){
-		curr = curr -> next;
+	while((*curr) -> next != NULL){
+		curr = &((*curr) -> next);
 	}
 
-	curr -> next = newEntry;
+	(*curr) -> next = newEntry;
 }
 
 void HashMap_get(HashMap *map, unsigned char key, void **data){
 
+	//printf("Key : %c \n", key);
 	int map_size = map -> size;
 	int hashed_key = hash(map_size, key);
 
@@ -74,14 +77,45 @@ void HashMap_get(HashMap *map, unsigned char key, void **data){
 	while(curr != NULL){
 		//found a match for key
 		if(curr -> key == key){
+			//printf("%c \n", curr -> key);
 			*data = curr;
+			break;
 		}
 		curr = curr -> next;
 	}
 
 }
 
-void HashMap_print(); 
+void HashMap_print(HashMap *map){
+	printf("Printing HashMap... \n");
+
+	if(map -> print_data == NULL){
+		printf("No print function provided\n\n");
+		return;
+	}
+
+	int size = map -> size;
+	Entry **entries = map -> entries;
+
+	for(int i = 0; i < size; i++){
+		Entry *entry = entries[i];
+		if(entry == NULL){
+			continue;
+		}
+
+		while(entry != NULL){
+			printf("%c: ", entry -> key);
+			map -> print_data(entry -> data);
+
+			if(entry -> next != NULL){
+				printf("-> ");
+			}
+			entry = entry -> next;
+		}
+		printf("\n");
+	}
+
+}
 
 void HashMap_destroy(HashMap *map){
 

@@ -16,6 +16,7 @@
 	
 	struct HashMap_
 	{
+	    void (*print_data)(void *);
 		void (*destroy_data)(void *);
 		Entry **entries;
 		int size; 		
@@ -23,10 +24,9 @@
 
 	typedef struct HashMap_ HashMap;
 
-	HashMap* 	HashMap_create	(int size, void (*destroy_data)(void *));
+	HashMap* 	HashMap_create	(int size, void (*destroy_data)(void *), void (*print_data)(void *));
 	void 		HashMap_put		(HashMap *map, unsigned char key, void *data);
 	void  		HashMap_get		(HashMap *map, unsigned char key, void **data);
-	void		HashMap_print	();
-	void		HashMap_destroy	(HashMap *map);
+	void		HashMap_print	(HashMap *map);void		HashMap_destroy	(HashMap *map);
 
 #endif

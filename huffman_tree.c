@@ -188,7 +188,11 @@ void HuffmanTreeNode_destroy(HuffmanTreeNode *node){
 }
 
 
-void destroyOccurrence(void *data){
+void destroy_occurrence(void *data){
 	free(data);
 }
 
+void print_occurrence(void *data){
+	Occurrence *occurrence = data;
+	printf("Value: %c, Weight: %lf", occurrence -> value, occurrence -> weight);
+}
