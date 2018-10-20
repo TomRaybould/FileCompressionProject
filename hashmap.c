@@ -4,37 +4,30 @@
 int hash(int map_size, unsigned char key);
 
 
-Entry* Entry_create(unsigned char key, void* data, int data_bit_length){
+Entry* Entry_create(unsigned char key, void *data){
 	Entry *newEntry = malloc(sizeof(Entry));
 
 	newEntry 	-> key 			= key;
 	newEntry	-> data 		= data;
-	newEntry 	-> bit_length 	= data_bit_length;
 	newEntry	-> next 		= NULL;
 
 	return newEntry;
 }
 
-
-void Entry_destroy(Entry **entry){
-	free(*entry);
-}
-
-
-
-HashMap* HashMap_create(int size){
+HashMap* HashMap_create(int size, void (*destroy_data)(void *)){
 
 	Entry **entries 	= malloc(sizeof(Entry*) * size);
-	HashMap *hashmap 	= malloc(sizeof(HashMap));
+	HashMap *map		= malloc(sizeof(HashMap));
 
-	for(int i = 0; i < size; i ++){
+	for(int i = 0; i < size; i++){
 		entries[i] = NULL;
 	}
 
-	hashmap -> size 	= size;
-	hashmap -> entries 	= entries;
+	map -> destroy_data = destroy_data;
+	map -> size 		= size;
+	map -> entries 		= entries;
 
-	return hashmap;
+	return map;
 
 }
 
@@ -42,14 +35,13 @@ int hash(int map_size, unsigned char key){
 	return key % map_size;
 }
 
-void HashMap_put(HashMap **map, unsigned char key, void *data, int data_bit_length){
+void HashMap_put(HashMap *map, unsigned char key, void *data){
 
-	HashMap *m = *map;
-	int map_size = m -> size;
+	int map_size = map -> size;
 	int hashed_key = hash(map_size, key);
 
-	Entry *newEntry = Entry_create(key, data, data_bit_length);
-	Entry **entries = m -> entries;  
+	Entry *newEntry = Entry_create(key, data);
+	Entry **entries = map -> entries;
 
 	//if null add new entry
 	if(entries[hashed_key] == NULL){
@@ -65,37 +57,53 @@ void HashMap_put(HashMap **map, unsigned char key, void *data, int data_bit_leng
 	}
 
 	curr -> next = newEntry;
-
 }
 
-Entry* HashMap_get(HashMap **map, unsigned char key){
+void HashMap_get(HashMap *map, unsigned char key, void **data){
 
-	HashMap *m = *map;
-	int map_size = m -> size;
+	int map_size = map -> size;
 	int hashed_key = hash(map_size, key);
 
-	Entry **entries = m -> entries;  
+	Entry **entries = map -> entries;
 
-	//search the linkedlist for value
+	//search the linked list for value
 	Entry *curr = entries[hashed_key];
-	
+
+	*data = NULL;
+
 	while(curr != NULL){
 		//found a match for key
 		if(curr -> key == key){
-			return curr;
+			*data = curr;
 		}
-
 		curr = curr -> next;
 	}
 
-	//no match found
-	return NULL;
 }
 
 void HashMap_print(); 
 
-void HashMap_destroy(HashMap **map){
-	HashMap *m = *map;
-	free(m -> entries);
-	free(m);
+void HashMap_destroy(HashMap *map){
+
+	Entry **entries = map -> entries;
+	int size = map -> size;
+
+	for(int i = 0; i < size; i++){
+		Entry_destroy(entries[i], map -> destroy_data);
+	}
+
+	free(map -> entries);
+	free(map);
+}
+
+void Entry_destroy(Entry *entry, void (*destroy_data)(void *)){
+	if(entry == NULL){
+		return;
+	}
+
+	Entry_destroy(entry -> next, destroy_data);
+
+	if(destroy_data != NULL) {
+		destroy_data(entry->data);
+	}
 }
