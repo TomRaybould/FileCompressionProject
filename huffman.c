@@ -101,8 +101,8 @@ void readInFile(char *fileName){
 
 			int int_size = sizeof(int);
 			int tar_bit_idx  = int_size - (huffmanMapData -> bit_length + i);
-
 			int bit = bit_get(c, tar_bit_idx);
+			printf("%d", bit);
 
 			bit_set(compressed, output_pos, bit);
 
