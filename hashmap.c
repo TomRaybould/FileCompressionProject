@@ -78,7 +78,7 @@ void HashMap_get(HashMap *map, unsigned char key, void **data){
 		//found a match for key
 		if(curr -> key == key){
 			//printf("%c \n", curr -> key);
-			*data = curr;
+			*data = curr -> data;
 			break;
 		}
 		curr = curr -> next;

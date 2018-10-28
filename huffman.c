@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "huffman.h"
 #include "huffman_tree.h"
 #include "dynamic_list.h"
@@ -14,7 +15,7 @@ void 				recsMapPop			(HashMap *map, BiTreeNode *node,unsigned int code_bit_leng
 void 				readInFile			(char *fileName);
 unsigned char *     compress            (unsigned char* input, int total_chars, HashMap* map);
 void 				scale_freqs			(int *freqs);
-void                writeToFile         ();
+FILE*               write_to_file 		(char *filename, unsigned char* compressed_data, int total_bytes);
 void	 			build_tree          (const int *freqs, BiTree** tree);
 
 int CHAR_MAX = 255;
@@ -31,8 +32,6 @@ int cmpfunc (const void *a, const void *b) {
 Reads in the file using a buffer and spits out a char array representing the files content
 */
 void readInFile(char *fileName){
-
-    printf("%s\n","working");
 	FILE *file;
 	unsigned char *buffer;
 	long file_len;
@@ -50,15 +49,11 @@ void readInFile(char *fileName){
 	fseek(file, 0, (int) (SEEK_CUR + lastIndex));
 	fread(buffer, (size_t) file_len, 1, file); // Read in the entire file
 
-
-    printf("%s\n","working");
 	int freqs[CHAR_MAX + 1];
-
 
 	for(int i = 0; i < CHAR_MAX +1; i++){
 		freqs[i] = 0;
 	}
-
 
 	int total_chars = 0;
 	for(int i = 0; i < file_len; i ++){
@@ -66,10 +61,7 @@ void readInFile(char *fileName){
 		freqs[c]++;
 	    total_chars++;
 	}
-    printf("%s\n","working");
 	scale_freqs(freqs);
-
-	printf("%c : %d\n", '0', freqs['0']);
 
 	BiTree *tree = malloc(sizeof(BiTree));
 
@@ -77,9 +69,51 @@ void readInFile(char *fileName){
 
 	HashMap *map = buildHashMap(tree);
 
-	compress(buffer, total_chars, map);
+	HashMap_print(map);
 
-	//DynamicList_destroy(occ_list);
+	int header_size = sizeof(int) + (CHAR_MAX + 1);
+
+	unsigned char *compressed = malloc((size_t) header_size);
+
+	memcpy(compressed, &total_chars, sizeof(int));
+
+	for(int i = 0; i <= CHAR_MAX; i++){
+		compressed[sizeof(int) + i] = (unsigned char) freqs[i];
+	}
+
+	unsigned int input_pos 	= 0;
+	unsigned int output_pos = (unsigned int) (header_size * 8);
+
+    printf("Compression: \n");
+	for(input_pos = 0; input_pos < total_chars; input_pos++){
+
+		unsigned char *c = &buffer[input_pos];
+
+		HuffmanMapData *huffmanMapData;
+
+		HashMap_get(map, buffer[input_pos], (void **) &huffmanMapData);
+
+		for(int i = 0; i < huffmanMapData -> bit_length; i++){
+
+			if(output_pos % 8 == 0){
+				compressed = realloc(compressed, (output_pos / 8) + 1);
+			}
+
+			int int_size = sizeof(int);
+			int tar_bit_idx  = int_size - (huffmanMapData -> bit_length + i);
+
+			int bit = bit_get(c, tar_bit_idx);
+
+			bit_set(compressed, output_pos, bit);
+
+			output_pos++;
+		}
+
+	}
+
+    printf("\n");
+	write_to_file(NULL, compressed, (output_pos / 8 + 1));
+
 	free(buffer);
 	fclose(file); // Close the file
 
@@ -269,43 +303,22 @@ HashMap* buildHashMap(BiTree *tree){
 
 }
 
-unsigned char* compress(unsigned char* input, int total_chars, HashMap *map){
 
-	unsigned int input_pos 	= 0;
-	unsigned int output_pos = 0;
+FILE* write_to_file(char *filename, unsigned char* compressed_data, int total_btyes){
 
-	unsigned char *output = malloc(sizeof(char));
+	FILE * fp;
 
-	if(output == NULL){
-		return NULL;
+	fp = fopen ("compressed","w");
+
+	/* write 10 lines of text into the file stream*/
+	for(int i = 0; i < total_btyes; i++){
+		fprintf (fp, "%u", compressed_data[i]);
 	}
 
-	for(input_pos = 0; input_pos < total_chars; input_pos++){
+	/* close the file*/
+	fclose (fp);
+	return 0;
 
-	    unsigned char *c = &input[input_pos];
-
-		HuffmanMapData *huffmanMapData;
-
-		HashMap_get(map, input[input_pos], (void **) &huffmanMapData);
-
-		for(int i = 0; i < huffmanMapData -> bit_length; i++){
-
-            if(output_pos % 8 == 0){
-                output = realloc(output, (output_pos / 8) + 1);
-            }
-
-            int int_size = sizeof(int);
-            int tar_bit_idx  = int_size - (huffmanMapData -> bit_length + i);
-
-            int bit = bit_get(c, tar_bit_idx);
-            bit_set(output, output_pos, bit);
-
-            output_pos++;
-		}
-
-
-	}
-    return output;
 }
 
 
