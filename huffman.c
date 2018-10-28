@@ -75,9 +75,9 @@ void readInFile(char *fileName){
 
 	build_tree(freqs, &tree);
 
-	//HashMap *map = buildHashMap(tree);
+	HashMap *map = buildHashMap(tree);
 
-	//compress(buffer, total_chars, map);
+	compress(buffer, total_chars, map);
 
 	//DynamicList_destroy(occ_list);
 	free(buffer);
@@ -288,16 +288,14 @@ unsigned char* compress(unsigned char* input, int total_chars, HashMap *map){
 
 		HashMap_get(map, input[input_pos], (void **) &huffmanMapData);
 
-		//printf("%c, %d \n", input[input_pos], huffmanMapData ->bit_length);
-
-		for(int j = 0; j < huffmanMapData -> bit_length; j++){
+		for(int i = 0; i < huffmanMapData -> bit_length; i++){
 
             if(output_pos % 8 == 0){
                 output = realloc(output, (output_pos / 8) + 1);
             }
 
             int int_size = sizeof(int);
-            int tar_bit_idx  = int_size - (huffmanMapData -> bit_length + j);
+            int tar_bit_idx  = int_size - (huffmanMapData -> bit_length + i);
 
             int bit = bit_get(c, tar_bit_idx);
             bit_set(output, output_pos, bit);
