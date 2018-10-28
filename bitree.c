@@ -222,7 +222,7 @@ void BiTree_level_order_print(BiTree *tree){
     }
 
     int tree_size = 20;
-    printf("tree size%d\n", tree -> size);
+    printf("tree size %d\n", tree -> size);
 
     BiTreeNode **nodes = malloc(sizeof(BiTreeNode*) * tree_size);
 

@@ -194,5 +194,5 @@ void destroy_occurrence(void *data){
 
 void print_occurrence(void *data){
 	Occurrence *occurrence = data;
-	printf("Value: %c, Weight: %lf", occurrence -> value, occurrence -> weight);
+	printf("Value: %u, Weight: %d",occurrence -> value, occurrence -> weight);
 }

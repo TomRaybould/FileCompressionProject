@@ -9,118 +9,115 @@
 #include "hashmap.h"
 #include "bit_ops.h"
 
-void 				addOccurrence		(DynamicList *list, unsigned char c);
-void 				printOccurrences	(void **occurrences, int list_size);
 HashMap*			buildHashMap		(BiTree *tree);
 void 				recsMapPop			(HashMap *map, BiTreeNode *node,unsigned int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
 unsigned char *     compress            (unsigned char* input, int total_chars, HashMap* map);
+void 				scale_freqs			(int *freqs);
 void                writeToFile         ();
-BiTree* 			build_tree          (DynamicList *occ_list);
+void	 			build_tree          (const int *freqs, BiTree** tree);
+
+int CHAR_MAX = 255;
 
 int cmpfunc (const void *a, const void *b) {
 	Occurrence **occ_ap = (Occurrence**)(a);
 	Occurrence **occ_bp = (Occurrence**)(b);
 	Occurrence *occ_a = *occ_ap;
 	Occurrence *occ_b = *occ_bp;
-   return (occ_a -> numOfOccurrences - occ_b ->numOfOccurrences);
+   return (occ_a -> weight - occ_b ->weight);
 }
 
 /**
 Reads in the file using a buffer and spits out a char array representing the files content
 */
 void readInFile(char *fileName){
-	FILE *fileptr;
+
+    printf("%s\n","working");
+	FILE *file;
 	unsigned char *buffer;
-	long filelen;
+	long file_len;
 
 	//printf("%s\n", fileName);
-	fileptr = fopen(fileName, "rb");  	// Open the file in binary mode
-	fseek(fileptr, 0, SEEK_END);      	// Jump to the end of the file
-	filelen = ftell(fileptr);           // Get the current byte offset in the file
-	rewind(fileptr);                    // Jump back to the beginning of the file
+	file = fopen(fileName, "rb");  	// Open the file in binary mode
+	fseek(file, 0, SEEK_END);      	// Jump to the end of the file
+	file_len = ftell(file);     	// Get the current byte offset in the file
+	rewind(file);                	// Jump back to the beginning of the file
 
 	long lastIndex = 0;
 
-	DynamicList *occ_list = malloc(sizeof(DynamicList));
+	buffer = (unsigned char *)malloc((file_len) * sizeof(unsigned char)); // Enough memory for file + \0
+
+	fseek(file, 0, (int) (SEEK_CUR + lastIndex));
+	fread(buffer, (size_t) file_len, 1, file); // Read in the entire file
 
 
-	DynamicList_init(occ_list, 10, destroy_occurrence);
+    printf("%s\n","working");
+	int freqs[CHAR_MAX + 1];
+
+
+	for(int i = 0; i < CHAR_MAX +1; i++){
+		freqs[i] = 0;
+	}
+
 
 	int total_chars = 0;
-
-	buffer = (unsigned char *)malloc((filelen) * sizeof(unsigned char)); // Enough memory for file + \0
-
-	fseek(fileptr, 0, (int) (SEEK_CUR + lastIndex));
-	fread(buffer, (size_t) filelen, 1, fileptr); // Read in the entire file
-		
-	for(int i = 0; i < filelen; i ++){
-	    addOccurrence(occ_list, buffer[i]);
+	for(int i = 0; i < file_len; i ++){
+		unsigned char c = buffer[i];
+		freqs[c]++;
 	    total_chars++;
-	    //printf("%c", buffer[i]);
 	}
+    printf("%s\n","working");
+	scale_freqs(freqs);
 
-	DynamicList_trim(occ_list);
+	printf("%c : %d\n", '0', freqs['0']);
 
-	qsort((occ_list -> data), (size_t) occ_list -> size, (sizeof(void *)), cmpfunc);
+	BiTree *tree = malloc(sizeof(BiTree));
 
-	for(int i = 0; i < occ_list -> size; i ++){
-		void **data = occ_list -> data;
-		Occurrence *occurrence = (Occurrence *) data[i];
-		double weight = occurrence -> numOfOccurrences / (double)total_chars;
-		occurrence -> weight = weight;
-	}
+	build_tree(freqs, &tree);
 
-	printOccurrences((occ_list -> data), occ_list -> size);
+	//HashMap *map = buildHashMap(tree);
 
-	//buildTree((Occurrence**)(occ_list -> data), occ_list -> size, total_chars);
-
-	BiTree *tree = build_tree(occ_list);
-
-	HashMap *map = buildHashMap(tree);
-
-	compress(buffer, total_chars, map);
+	//compress(buffer, total_chars, map);
 
 	//DynamicList_destroy(occ_list);
 	free(buffer);
-	fclose(fileptr); // Close the file
+	fclose(file); // Close the file
 
 }
 
-void addOccurrence(DynamicList *list, unsigned char c){
-	int list_size = list -> size;
-	Occurrence **data =((Occurrence **) (list -> data));
-	
-	//add one to number of occurrences if already in list 
-	for(int i = 0; i < list_size; i++){
-		Occurrence *occurrence = data[i];
-		if(occurrence -> value == c){
-			occurrence -> numOfOccurrences++;
-			return;
+void scale_freqs(int *freqs){
+
+	//find max value
+	int max_freq = CHAR_MAX;
+	for(int i = 0; i <= CHAR_MAX; i++){
+		int freq = freqs[i];
+		if(freq > max_freq){
+			max_freq = freq;
 		}
 	}
-	//else add new occurrence
-	Occurrence *occurrence = malloc(sizeof(Occurrence));
-	occurrence -> value = c;
-	occurrence -> numOfOccurrences = 1;
 
-	DynamicList_add(list, occurrence);
-}
+	for(int i = 0; i <= CHAR_MAX; i++){
+		int freq = freqs[i];
 
-void printOccurrences(void **occurrences, int list_size){
-	for(int i = 0; i < list_size; i ++){
-		Occurrence *occurrence = (Occurrence(*))occurrences[i];
-		printf("%c %d\n", occurrence->value, occurrence -> numOfOccurrences);
+		//scale to 0 - 255 value
+		int scaled = (int)((double)freq / ((double)max_freq / (double)CHAR_MAX));
+
+		if(scaled == 0 && freq > 0){
+			scaled = 1;
+		}
+
+		freqs[i] = scaled;
 	}
 }
+
 
 int comp_occ(void *o1, void *o2){
 
 	Occurrence *occ1 = (Occurrence *)o1;
 	Occurrence *occ2 = (Occurrence *)o2;
 
-	double weight1 = occ1 -> weight;
-	double weight2 = occ2 -> weight;
+	int weight1 = occ1 -> weight;
+	int weight2 = occ2 -> weight;
 
 	if(weight1 == weight2){
         return 0;
@@ -144,62 +141,58 @@ int tree_comp(void *t1, void *t2){
 
 }
 
-void print_heap(Heap *heap){
-    int size = heap -> size;
-    void **data = heap -> data;
 
-    for(int i = 0; i < size; i++){
-        BiTree *tree = data[i];
-        BiTreeNode *treeNode = tree -> root;
-        Occurrence *occ = treeNode -> data;
-        printf("value: %c weight: %lf \n", occ -> value, occ -> weight);
-    }
-
-}
-
-
-BiTree* build_tree(DynamicList *occ_list){
-
-    int list_size = occ_list -> size;
-    void **data = occ_list -> data;
+void build_tree(const int *freqs, BiTree **tree){
 
     Heap *heap = malloc(sizeof(Heap));
 
-    Heap_init(heap, list_size, BiTree_destroy, tree_comp, (void (*)(void *)) BiTree_level_order_print);
+    Heap_init(heap, CHAR_MAX + 1, BiTree_destroy, tree_comp, (void (*)(void *)) BiTree_level_order_print);
 
-    for(int i = 0; i < list_size; i++) {
+    for(unsigned int c = 0; c <= 255; c++) {
 
-        BiTree *tree = malloc(sizeof(BiTree));
-        BiTree_init(tree, destroy_occurrence, print_occurrence);
+    	if(freqs[c] == 0){
+			continue;
+    	}
 
-        BiTree_ins_left(tree, NULL, data[i]);
+    	Occurrence *occurrence = malloc(sizeof(Occurrence));
 
-        Heap_push(heap, tree);
+    	occurrence -> value  = (unsigned char) c;
+    	occurrence -> weight = freqs[c];
+
+    	print_occurrence(occurrence);
+    	printf("\n");
+
+        BiTree *temp_tree = malloc(sizeof(BiTree));
+        BiTree_init(temp_tree, destroy_occurrence, print_occurrence);
+
+        BiTree_ins_left(temp_tree, NULL, occurrence);
+
+        Heap_push(heap, temp_tree);
 
     }
+
     printf("%s", "\n");
-    print_heap(heap);
-    printf("\n");
+	Heap_print(heap);
+	printf("\n");
 
 	while(heap -> size > 1){
-
 		BiTree *tree1, *tree2;
 
 		Heap_pop(heap, (void **) &tree1);
         Occurrence *occ1 = tree1 -> root -> data;
-        print_occurrence(occ1);
-        printf("\n");
+        //print_occurrence(occ1);
+        //printf("\n");
 
-        Heap_print(heap);
-        printf("\n");
+        //Heap_print(heap);
+        //printf("\n");
 
         Heap_pop(heap, (void **) &tree2);
         Occurrence *occ2 = tree2 -> root -> data;
-		print_occurrence(occ2);
-        printf("\n");
+		//print_occurrence(occ2);
+        //printf("\n");
 
-		Heap_print(heap);
-        printf("\n");
+		//Heap_print(heap);
+        //printf("\n");
 
 		Occurrence *occ = malloc(sizeof(Occurrence));
 
@@ -211,18 +204,14 @@ BiTree* build_tree(DynamicList *occ_list){
 		BiTree_merge(merged, occ, tree1, tree2);
 
 		Heap_push(heap, merged);
-        Heap_print(heap);
-
+        //Heap_print(heap);
 
 	}
 
-	void *result;
+	Heap_pop(heap, (void **) tree);
 
-	Heap_pop(heap, &result);
+	BiTree_level_order_print(*tree);
 
-	BiTree_level_order_print(result);
-
-	return result;
 }
 
 
@@ -324,7 +313,7 @@ unsigned char* compress(unsigned char* input, int total_chars, HashMap *map){
 
 
 int main (int argc, char *argv[]){
-	//printf("%s\n", argv[1]);
+	printf("%s\n", argv[1]);
 	readInFile(argv[1]);
 	return -1;
 
