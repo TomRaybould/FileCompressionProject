@@ -87,8 +87,6 @@ void readInFile(char *fileName){
     printf("Compression: \n");
 	for(input_pos = 0; input_pos < total_chars; input_pos++){
 
-		unsigned char *c = &buffer[input_pos];
-
 		HuffmanMapData *huffmanMapData;
 
 		HashMap_get(map, buffer[input_pos], (void **) &huffmanMapData);
@@ -99,9 +97,9 @@ void readInFile(char *fileName){
 				compressed = realloc(compressed, (output_pos / 8) + 1);
 			}
 
-			int int_size = sizeof(int);
-			int tar_bit_idx  = int_size - (huffmanMapData -> bit_length + i);
-			int bit = bit_get(c, tar_bit_idx);
+			int int_size = sizeof(unsigned int);
+			int tar_bit_idx  = (int_size * 8) - huffmanMapData -> bit_length + i;
+			int bit = bit_get((const unsigned char *) &(huffmanMapData -> code), tar_bit_idx);
 			printf("%d", bit);
 
 			bit_set(compressed, output_pos, bit);
@@ -256,23 +254,26 @@ void recsMapPop(HashMap *map, BiTreeNode *node, unsigned int code_bit_length, un
 
 	//only for leaf nodes
 	if(code_bit_length > 0 && node -> right == NULL && node -> left == NULL){
+
+        printf("code %d\n", code);
 		HuffmanMapData *data    = malloc(sizeof(HuffmanMapData));
 		data -> code	        = htonl(code);
 		data -> bit_length      = code_bit_length;
 
 		Occurrence *occurrence = (Occurrence*) node -> data;
 
-		printf("%c, %d \n", occurrence -> value, data -> bit_length);
+		printf("key: %c, code: %d, bit_length: %d \n", occurrence -> value,data -> code, data -> bit_length);
 
 		HashMap_put(map, occurrence -> value, data);
-	}else{
+	}
+	else{
 	    printf("bit length: %d\n", code_bit_length);
 	}
 
 	code = code << 1;
 
 	//adds one to the code for the right side
-	recsMapPop(map, node -> right, code_bit_length + 1, code | 0x0001);
+	recsMapPop(map, node -> right, code_bit_length + 1, (code | 0x0001));
 	//adds zero to the code fo the left side
 	recsMapPop(map, node -> left, code_bit_length + 1, code);
 }
@@ -326,6 +327,16 @@ FILE* write_to_file(char *filename, unsigned char* compressed_data, int total_bt
 int main (int argc, char *argv[]){
 	printf("%s\n", argv[1]);
 	readInFile(argv[1]);
+
+	/*
+	unsigned int i = 0x0001;
+	printf("%d \n", i);
+    for (int j = 0; j < 10; ++j) {
+        i = (i << 1);
+        printf("%d \n", i);
+    }
+    */
+
 	return -1;
 
 }
