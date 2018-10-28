@@ -4,7 +4,7 @@
 
 	struct Entry_
 	{
-		char 	key;
+		unsigned char 	key;
 		void 	*data;
 		struct 	Entry_ 	*next;
 	};

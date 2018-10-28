@@ -203,7 +203,7 @@ void build_tree(const int *freqs, BiTree **tree){
     }
 
     printf("%s", "\n");
-	Heap_print(heap);
+	//Heap_print(heap);
 	printf("\n");
 
 	while(heap -> size > 1){
@@ -283,8 +283,8 @@ void free_data(void *data){
 
 void HuffmanMapData_print(void* data){
 	HuffmanMapData *huffmanMapData = data;
-	printf("%d, ", huffmanMapData -> code);
-	printf("%d", huffmanMapData -> bit_length);
+	printf("%u, ", huffmanMapData -> code);
+	printf("%u", huffmanMapData -> bit_length);
 }
 
 HashMap* buildHashMap(BiTree *tree){

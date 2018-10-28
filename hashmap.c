@@ -104,7 +104,7 @@ void HashMap_print(HashMap *map){
 		}
 
 		while(entry != NULL){
-			printf("%c: ", entry -> key);
+			printf("%u: ", entry -> key);
 			map -> print_data(entry -> data);
 
 			if(entry -> next != NULL){
