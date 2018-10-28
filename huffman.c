@@ -13,10 +13,10 @@
 HashMap*			buildHashMap		(BiTree *tree);
 void 				recsMapPop			(HashMap *map, BiTreeNode *node,unsigned int code_bit_length, unsigned int code);
 void 				readInFile			(char *fileName);
-unsigned char *     compress            (unsigned char* input, int total_chars, HashMap* map);
 void 				scale_freqs			(int *freqs);
 FILE*               write_to_file 		(char *filename, unsigned char* compressed_data, int total_bytes);
 void	 			build_tree          (const int *freqs, BiTree** tree);
+void 				print_int_as_bi		(const int num);
 
 int CHAR_MAX = 255;
 
@@ -100,7 +100,6 @@ void readInFile(char *fileName){
 			int int_size = sizeof(unsigned int);
 			int tar_bit_idx  = (int_size * 8) - huffmanMapData -> bit_length + i;
 			int bit = bit_get((const unsigned char *) &(huffmanMapData -> code), tar_bit_idx);
-			printf("%d", bit);
 
 			bit_set(compressed, output_pos, bit);
 
@@ -323,20 +322,22 @@ FILE* write_to_file(char *filename, unsigned char* compressed_data, int total_bt
 }
 
 
+void print_int_as_bi(const int num){
+
+	for (int j = 0; j < 32; ++j) {
+		if(j % 4 == 0 && j != 0){
+			printf(" ");
+		}
+		printf("%d", bit_get((const unsigned char *) &num, j));
+	}
+
+	printf("\n");
+}
 
 int main (int argc, char *argv[]){
 	printf("%s\n", argv[1]);
 	readInFile(argv[1]);
-
-	/*
-	unsigned int i = 0x0001;
-	printf("%d \n", i);
-    for (int j = 0; j < 10; ++j) {
-        i = (i << 1);
-        printf("%d \n", i);
-    }
-    */
-
+	printf("\n");
 	return -1;
 
 }
