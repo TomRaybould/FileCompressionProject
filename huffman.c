@@ -12,11 +12,14 @@
 
 HashMap*			buildHashMap		(BiTree *tree);
 void 				recsMapPop			(HashMap *map, BiTreeNode *node,unsigned int code_bit_length, unsigned int code);
-void 				readInFile			(char *fileName);
+long 				read_in_file		(char *file_name, unsigned char **file_contents);
 void 				scale_freqs			(int *freqs);
 FILE*               write_to_file 		(char *filename, unsigned char* compressed_data, int total_bytes);
 void	 			build_tree          (const int *freqs, BiTree** tree);
 void 				print_int_as_bi		(const int num);
+
+//decompression
+void 				read_in_compressed_file(char *filename);
 
 int CHAR_MAX = 255;
 
@@ -28,10 +31,13 @@ int cmpfunc (const void *a, const void *b) {
    return (occ_a -> weight - occ_b ->weight);
 }
 
-/**
-Reads in the file using a buffer and spits out a char array representing the files content
+/*
+	Reads the file in to the file_contents pointer to arr and returns
+	the lenght of the file in bits.
 */
-void readInFile(char *fileName){
+	
+long read_in_file(char *fileName, unsigned char **file_contents){
+
 	FILE *file;
 	unsigned char *buffer;
 	long file_len;
@@ -49,6 +55,24 @@ void readInFile(char *fileName){
 	fseek(file, 0, (int) (SEEK_CUR + lastIndex));
 	fread(buffer, (size_t) file_len, 1, file); // Read in the entire file
 
+	*file_contents = buffer;
+
+	fclose(file);
+	return file_len;
+}
+
+
+/**
+Reads in the file using a buffer and spits out a char array representing the files content
+*/
+void compress(char *file_name){
+	
+	unsigned char **file_contents; 
+
+	long file_len = read_in_file(file_name, file_contents);
+
+	unsigned char *buffer = *file_contents;
+
 	int freqs[CHAR_MAX + 1];
 
 	for(int i = 0; i < CHAR_MAX +1; i++){
@@ -61,6 +85,7 @@ void readInFile(char *fileName){
 		freqs[c]++;
 	    total_chars++;
 	}
+
 	scale_freqs(freqs);
 
 	BiTree *tree = malloc(sizeof(BiTree));
@@ -111,8 +136,7 @@ void readInFile(char *fileName){
     printf("\n");
 	write_to_file(NULL, compressed, (output_pos / 8 + 1));
 
-	free(buffer);
-	fclose(file); // Close the file
+	free(buffer); // Close the file
 
 }
 
@@ -336,7 +360,7 @@ void print_int_as_bi(const int num){
 
 int main (int argc, char *argv[]){
 	printf("%s\n", argv[1]);
-	readInFile(argv[1]);
+	compress(argv[1]);
 	printf("\n");
 	return -1;
 
