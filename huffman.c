@@ -17,6 +17,8 @@ void 				scale_freqs			(int *freqs);
 FILE*               write_to_file 		(char *filename, unsigned char* compressed_data, int total_bytes);
 void	 			build_tree          (const int *freqs, BiTree** tree);
 void 				print_int_as_bi		(const int num);
+void 				decompress_file		(char *file_name);
+void 				print_char_arr		(unsigned char *char_arr, int length);
 
 //decompression
 void 				read_in_compressed_file(char *filename);
@@ -33,7 +35,7 @@ int cmpfunc (const void *a, const void *b) {
 
 /*
 	Reads the file in to the file_contents pointer to arr and returns
-	the lenght of the file in bits.
+	the length of the file in bits.
 */
 	
 long read_in_file(char *fileName, unsigned char **file_contents){
@@ -42,7 +44,7 @@ long read_in_file(char *fileName, unsigned char **file_contents){
 	unsigned char *buffer;
 	long file_len;
 
-	//printf("%s\n", fileName);
+	printf("%s\n", fileName);
 	file = fopen(fileName, "rb");  	// Open the file in binary mode
 	fseek(file, 0, SEEK_END);      	// Jump to the end of the file
 	file_len = ftell(file);     	// Get the current byte offset in the file
@@ -52,12 +54,22 @@ long read_in_file(char *fileName, unsigned char **file_contents){
 
 	buffer = (unsigned char *)malloc((file_len) * sizeof(unsigned char)); // Enough memory for file + \0
 
+
 	fseek(file, 0, (int) (SEEK_CUR + lastIndex));
 	fread(buffer, (size_t) file_len, 1, file); // Read in the entire file
 
-	*file_contents = buffer;
+	unsigned char *copied_data = (unsigned char *)malloc((file_len) * sizeof(unsigned char)); // Enough memory for file + \0
 
+	for(int i = 0; i < file_len; i ++){
+		unsigned char c = buffer[i];
+		copied_data[i] = c;
+	}
+
+	free(buffer);
 	fclose(file);
+
+	*file_contents = copied_data;
+
 	return file_len;
 }
 
@@ -72,6 +84,8 @@ void compress(char *file_name){
 	long file_len = read_in_file(file_name, file_contents);
 
 	unsigned char *buffer = *file_contents;
+
+	print_char_arr(buffer, (int) file_len);
 
 	int freqs[CHAR_MAX + 1];
 
@@ -132,6 +146,8 @@ void compress(char *file_name){
 		}
 
 	}
+
+	print_char_arr(compressed, (output_pos / 8 + 1));
 
     printf("\n");
 	write_to_file(NULL, compressed, (output_pos / 8 + 1));
@@ -328,22 +344,35 @@ HashMap* buildHashMap(BiTree *tree){
 }
 
 
-FILE* write_to_file(char *filename, unsigned char* compressed_data, int total_btyes){
+FILE* write_to_file(char *filename, unsigned char* compressed_data, int total_bytes){
 
 	FILE * fp;
 
-	fp = fopen ("compressed","w");
+	fp = fopen ("compressed.bin","wb");
 
-	/* write 10 lines of text into the file stream*/
-	for(int i = 0; i < total_btyes; i++){
-		fprintf (fp, "%u", compressed_data[i]);
-	}
+	fwrite(compressed_data, sizeof(unsigned char), total_bytes, fp);
 
 	/* close the file*/
 	fclose (fp);
 	return 0;
 
 }
+
+
+void decompress_file(char *file_name){
+
+	unsigned char **file_contents; 
+
+	long file_len = read_in_file(file_name, file_contents);
+
+	printf("%ld\n", file_len);
+
+	unsigned char *buffer = *file_contents;
+
+	print_char_arr(buffer, (int)file_len);
+
+}
+
 
 
 void print_int_as_bi(const int num){
@@ -358,10 +387,18 @@ void print_int_as_bi(const int num){
 	printf("\n");
 }
 
+void print_char_arr(unsigned char *char_arr, int length){
+	for(int i = 0; i < length; i++){
+		printf("%u", char_arr[i]);
+	}
+	printf("\n");
+}
+
 int main (int argc, char *argv[]){
 	printf("%s\n", argv[1]);
 	compress(argv[1]);
 	printf("\n");
+	decompress_file("compressed.bin");
 	return -1;
 
 }
