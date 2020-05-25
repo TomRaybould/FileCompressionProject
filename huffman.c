@@ -21,7 +21,8 @@ void 				decompress_file		(char *file_name);
 void 				print_char_arr		(unsigned char *char_arr, int length);
 
 //decompression
-void 				read_in_compressed_file(char *filename);
+void 				read_in_compressed_file	(char *filename);
+void 				parse_compressed_freqs	(unsigned char* buffer, int* freqs);
 
 int CHAR_MAX = 255;
 
@@ -371,6 +372,31 @@ void decompress_file(char *file_name){
 
 	print_char_arr(buffer, (int)file_len);
 
+	int freqs[CHAR_MAX + 1];
+
+	parse_compressed_freqs(buffer, freqs);
+
+	BiTree *tree = malloc(sizeof(BiTree));
+
+	build_tree(freqs, &tree);
+
+	HashMap *map = buildHashMap(tree);
+
+	HashMap_print(map);
+
+	
+
+}
+
+void parse_compressed_freqs(unsigned char* buffer, int* freqs){
+	//offsetting the int storing the total bytes at beginning of file
+	int start_offset = 4;
+
+	for(int i = 0; i < CHAR_MAX +1; i++){
+		freqs[i] = buffer[start_offset + i];
+	}
+
+	scale_freqs(freqs);
 }
 
 
