@@ -23,6 +23,7 @@ void 				print_char_arr		(unsigned char *char_arr, int length);
 //decompression
 void 				read_in_compressed_file	(char *filename);
 void 				parse_compressed_freqs	(unsigned char* buffer, int* freqs);
+void 				printBits				(char * data, size_t size_of);
 
 int CHAR_MAX = 255;
 
@@ -132,15 +133,19 @@ void compress(char *file_name){
 		HashMap_get(map, buffer[input_pos], (void **) &huffmanMapData);
 
 		for(int i = 0; i < huffmanMapData -> bit_length; i++){
-
+			printf("bit_length %d\n", huffmanMapData -> bit_length);
 			if(output_pos % 8 == 0){
 				compressed = realloc(compressed, (output_pos / 8) + 1);
 			}
 
 			int int_size = sizeof(unsigned int);
-			int tar_bit_idx  = (int_size * 8) - huffmanMapData -> bit_length + i;
-			int bit = bit_get((const unsigned char *) &(huffmanMapData -> code), tar_bit_idx);
 
+			int tar_bit_idx  = (sizeof(int) * 8);
+			tar_bit_idx = tar_bit_idx - ((huffmanMapData -> bit_length) - i);
+			//printf("huffmanMapData -> code %d\n", huffmanMapData -> code);
+            //printf("tar_bit_id %d\n", tar_bit_idx);
+			int bit = bit_get((unsigned char *) &(huffmanMapData -> code), tar_bit_idx);
+			//printf("bit %d\n", bit);
 			bit_set(compressed, output_pos, bit);
 
 			output_pos++;
@@ -370,6 +375,8 @@ void decompress_file(char *file_name){
 
 	unsigned char *buffer = *file_contents;
 
+	int original_file_length = *((int*) buffer);
+
 	print_char_arr(buffer, (int)file_len);
 
 	int freqs[CHAR_MAX + 1];
@@ -380,25 +387,91 @@ void decompress_file(char *file_name){
 
 	build_tree(freqs, &tree);
 
-	HashMap *map = buildHashMap(tree);
+	int header_size = sizeof(int) + CHAR_MAX + 1;
 
-	HashMap_print(map);
+	BiTreeNode *curr_node = tree -> root;
 
-	
+	unsigned int processed_bytes = 0;
+	unsigned char uncompressed_data[original_file_length];
 
+	printf("og file size%d\n", original_file_length);
+
+	for(unsigned int i = header_size; i < file_len; i++){
+		if(processed_bytes == original_file_length){
+			break;
+		}
+		for(int j = 0; j < 8; j++){
+
+			if(curr_node -> left == NULL && curr_node -> right == NULL){
+				Occurrence *occurrence = (Occurrence*) curr_node -> data;
+				uncompressed_data[processed_bytes] = occurrence -> value;
+				processed_bytes ++;
+				if(processed_bytes == original_file_length){
+					break;
+				}
+				curr_node = tree -> root;
+				print_occurrence(occurrence);
+				printf("%s\n", "");
+			}
+
+			int bit = bit_get(buffer, (8 * i) + j);
+			printf(" bit  %d\n", bit);
+			
+			if(bit){
+				curr_node = curr_node -> right;
+			}
+			else{
+				curr_node = curr_node -> left;
+			}
+
+		}
+	}
+
+	print_char_arr(uncompressed_data, original_file_length);
 }
 
 void parse_compressed_freqs(unsigned char* buffer, int* freqs){
 	//offsetting the int storing the total bytes at beginning of file
 	int start_offset = 4;
 
-	for(int i = 0; i < CHAR_MAX +1; i++){
+	for(int i = 0; i < CHAR_MAX + 1; i++){
 		freqs[i] = buffer[start_offset + i];
 	}
 
 	scale_freqs(freqs);
+
 }
 
+void printBits(char * data, size_t size_of){
+	int numOfBits = size_of * 8;	
+
+	int currentByte = 0;
+	for(int i = 0; i < numOfBits; i++){
+		unsigned int byteIndex = i / 8;
+
+		//add space inbetween btyes
+		if(currentByte != byteIndex){
+			currentByte = byteIndex;
+			printf("%c", ' ');
+		}
+
+		// 0000 0001
+		// substracting 7 because "1" is in the 7th index 
+		unsigned int bitIndex = 7 - (i % 8);
+
+		unsigned char mask = 0x01;
+		
+		mask = mask << (bitIndex);
+
+		unsigned int isBitOne = (mask & data[byteIndex]);
+
+		printf("%d", isBitOne);
+
+	}
+
+	printf("\n");
+
+}
 
 
 void print_int_as_bi(const int num){
@@ -415,7 +488,7 @@ void print_int_as_bi(const int num){
 
 void print_char_arr(unsigned char *char_arr, int length){
 	for(int i = 0; i < length; i++){
-		printf("%u", char_arr[i]);
+		printf("%c", char_arr[i]);
 	}
 	printf("\n");
 }
