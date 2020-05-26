@@ -155,7 +155,7 @@ void compress(char *file_name){
 	//print_char_arr(compressed, (output_pos / 8 + 1));
 
     //printf("\n");
-	write_to_file(NULL, compressed, (output_pos / 8 + 1));
+	write_to_file("compressed.bin", compressed, (output_pos / 8 + 1));
 
 	free(buffer); // Close the file
 
@@ -349,13 +349,13 @@ HashMap* buildHashMap(BiTree *tree){
 }
 
 
-FILE* write_to_file(char *filename, unsigned char* compressed_data, int total_bytes){
+FILE* write_to_file(char* filename, unsigned char* data, int total_bytes){
 
 	FILE * fp;
 
-	fp = fopen ("compressed.bin","wb");
+	fp = fopen (filename, "wb");
 
-	fwrite(compressed_data, sizeof(unsigned char), total_bytes, fp);
+	fwrite(data, sizeof(unsigned char), total_bytes, fp);
 
 	/* close the file*/
 	fclose (fp);
@@ -391,7 +391,7 @@ void decompress_file(char *file_name){
 	BiTreeNode *curr_node = tree -> root;
 
 	unsigned int processed_bytes = 0;
-	unsigned char uncompressed_data[original_file_length];
+	unsigned char decompressed_data[original_file_length];
 
 	//printf("og file size%d\n", original_file_length);
 
@@ -403,7 +403,7 @@ void decompress_file(char *file_name){
 
 			if(curr_node -> left == NULL && curr_node -> right == NULL){
 				Occurrence *occurrence = (Occurrence*) curr_node -> data;
-				uncompressed_data[processed_bytes] = occurrence -> value;
+				decompressed_data[processed_bytes] = occurrence -> value;
 				processed_bytes ++;
 				if(processed_bytes == original_file_length){
 					break;
@@ -426,7 +426,9 @@ void decompress_file(char *file_name){
 		}
 	}
 
-	//print_char_arr(uncompressed_data, original_file_length);
+	write_to_file("decompressed.txt", decompressed_data, original_file_length);
+
+	//print_char_arr(decompressed_data, original_file_length);
 }
 
 void parse_compressed_freqs(unsigned char* buffer, int* freqs){
