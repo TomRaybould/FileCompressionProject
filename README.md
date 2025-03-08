@@ -6,11 +6,18 @@ https://en.wikipedia.org/wiki/Huffman_coding
 
 ## How to use
 
-1. make
-2. ./huffman &lt;File to be compressed&gt;
+run "make" to compile
 
-This will run both the compression and decompression of the file and create the 2 resulting file below:
+### Compression
 
-* compressed.bin = The compressed version of your input file
-* decompressed   = The decompressed version of your compressed data(Hopefully looking the same as your original file)
+./huffman -c &lt;File to be compressed&gt &lt;Destination file&gt
+
+If no destination is added it will default to "compressed.bin" in your current directory.
+
+### Decompression
+
+./huffman -d &lt;File to be decompressed&gt &lt;Destination file&gt
+
+If no destination is added it will default to "decompressed" in your current directory, with no file extention.
+
 
