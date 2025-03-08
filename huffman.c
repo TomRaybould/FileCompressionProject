@@ -11,18 +11,18 @@
 #include "bit_ops.h"
 
 HashMap*			buildHashMap		(BiTree *tree);
-void 				recsMapPop			(HashMap *map, BiTreeNode *node,unsigned int code_bit_length, unsigned int code);
+void 				recsMapPop		(HashMap *map, BiTreeNode *node,unsigned int code_bit_length, unsigned int code);
 long 				read_in_file		(char *file_name, unsigned char **file_contents);
-void 				scale_freqs			(int *freqs);
-FILE*               write_to_file 		(char *filename, unsigned char* compressed_data, int total_bytes);
-void	 			build_tree          (const int *freqs, BiTree** tree);
+void 				scale_freqs		(int *freqs);
+FILE*               		write_to_file 		(char *filename, unsigned char* compressed_data, int total_bytes);
+void	 			build_tree          	(const int *freqs, BiTree** tree);
 void 				decompress_file		(char *file_name);
 void 				print_char_arr		(unsigned char *char_arr, int length);
 
 //decompression
 void 				read_in_compressed_file	(char *filename);
 void 				parse_compressed_freqs	(unsigned char* buffer, int* freqs);
-void 				printBits				(char * data, size_t size_of);
+void 				printBits		(char * data, size_t size_of);
 
 int CHAR_MAX = 255;
 
@@ -80,11 +80,11 @@ Reads in the file using a buffer and spits out a char array representing the fil
 */
 void compress(char *file_name){
 	
-	unsigned char **file_contents; 
+	unsigned char *file_contents = NULL; 
 
-	long file_len = read_in_file(file_name, file_contents);
+	long file_len = read_in_file(file_name, &file_contents);
 
-	unsigned char *buffer = *file_contents;
+	unsigned char *buffer = file_contents;
 
 	//print_char_arr(buffer, (int) file_len);
 
@@ -366,13 +366,13 @@ FILE* write_to_file(char* filename, unsigned char* data, int total_bytes){
 
 void decompress_file(char *file_name){
 
-	unsigned char **file_contents; 
+	unsigned char *file_contents; 
 
-	long file_len = read_in_file(file_name, file_contents);
+	long file_len = read_in_file(file_name, &file_contents);
 
 	//printf("%ld\n", file_len);
 
-	unsigned char *buffer = *file_contents;
+	unsigned char *buffer = file_contents;
 
 	int original_file_length = *((int*) buffer);
 
@@ -484,7 +484,7 @@ void print_char_arr(unsigned char *char_arr, int length){
 int main (int argc, char *argv[]){
 	printf("%s\n", argv[1]);
 	compress(argv[1]);
-	printf("\n");
+	printf("Compression Done\n");
 	decompress_file("compressed.bin");
 	return -1;
 
