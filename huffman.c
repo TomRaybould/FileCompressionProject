@@ -482,11 +482,17 @@ void print_char_arr(unsigned char *char_arr, int length){
 }
 
 int main (int argc, char *argv[]){
-	printf("%s\n", argv[1]);
-	compress(argv[1]);
-	printf("Compression Done\n");
-	decompress_file("compressed.bin");
-	printf("Decompression Done\n");
+	// printf("%s\n", argv[1]);
+
+	if(strcmp(argv[1], "-c") == 0){
+		compress(argv[2]);
+		return 0;
+	} else if (strcmp(argv[1], "-d") == 0){
+		decompress_file("compressed.bin");
+		return 0;
+	}
+
+	printf("Invalid Input");
 	return -1;
 }
 
