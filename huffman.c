@@ -426,7 +426,7 @@ void decompress_file(char *file_name){
 		}
 	}
 
-	write_to_file("decompressed.txt", decompressed_data, original_file_length);
+	write_to_file("decompressed", decompressed_data, original_file_length);
 
 	//print_char_arr(decompressed_data, original_file_length);
 }
@@ -486,11 +486,8 @@ int main (int argc, char *argv[]){
 	compress(argv[1]);
 	printf("Compression Done\n");
 	decompress_file("compressed.bin");
-	printf("Decompression Done");
+	printf("Decompression Done\n");
 	return -1;
 }
-
-
-
 
 
