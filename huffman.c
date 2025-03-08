@@ -486,8 +486,8 @@ int main (int argc, char *argv[]){
 	compress(argv[1]);
 	printf("Compression Done\n");
 	decompress_file("compressed.bin");
+	printf("Decompression Done")
 	return -1;
-
 }
 
 
