@@ -487,6 +487,7 @@ int main (int argc, char *argv[]){
 		return 0;
 	} else if(strcmp(argv[1], "-c") == 0 && argc == 4){ 
 		compress(argv[2], argv[3]);
+		return 0;
 	}
 	else if (strcmp(argv[1], "-d") == 0 && argc == 3){
 		decompress_file(argv[2], "decompressed");
@@ -497,7 +498,7 @@ int main (int argc, char *argv[]){
 		return 0;
 	}
 
-	printf("Invalid Input");
+	printf("Invalid Input\n");
 	return -1;
 }
 
