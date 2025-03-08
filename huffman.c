@@ -16,7 +16,7 @@ long 				read_in_file		(char *file_name, unsigned char **file_contents);
 void 				scale_freqs		(int *freqs);
 FILE*               		write_to_file 		(char *filename, unsigned char* compressed_data, int total_bytes);
 void	 			build_tree          	(const int *freqs, BiTree** tree);
-void 				decompress_file		(char *file_name);
+void 				decompress_file		(char *file_name, char *target_file_name);
 void 				print_char_arr		(unsigned char *char_arr, int length);
 
 //decompression
@@ -78,7 +78,7 @@ long read_in_file(char *fileName, unsigned char **file_contents){
 /**
 Reads in the file using a buffer and spits out a char array representing the files content
 */
-void compress(char *file_name){
+void compress(char *file_name, char *target_file_name){
 	
 	unsigned char *file_contents = NULL; 
 
@@ -155,7 +155,7 @@ void compress(char *file_name){
 	//print_char_arr(compressed, (output_pos / 8 + 1));
 
     //printf("\n");
-	write_to_file("compressed.bin", compressed, (output_pos / 8 + 1));
+	write_to_file(target_file_name, compressed, (output_pos / 8 + 1));
 
 	free(buffer); // Close the file
 
@@ -364,7 +364,7 @@ FILE* write_to_file(char* filename, unsigned char* data, int total_bytes){
 }
 
 
-void decompress_file(char *file_name){
+void decompress_file(char *file_name, char *target_file_name){
 
 	unsigned char *file_contents; 
 
@@ -426,7 +426,7 @@ void decompress_file(char *file_name){
 		}
 	}
 
-	write_to_file("decompressed", decompressed_data, original_file_length);
+	write_to_file(target_file_name, decompressed_data, original_file_length);
 
 	//print_char_arr(decompressed_data, original_file_length);
 }
@@ -482,13 +482,18 @@ void print_char_arr(unsigned char *char_arr, int length){
 }
 
 int main (int argc, char *argv[]){
-	// printf("%s\n", argv[1]);
-
-	if(strcmp(argv[1], "-c") == 0){
-		compress(argv[2]);
+	if(strcmp(argv[1], "-c") == 0 && argc == 3){
+		compress(argv[2], "compressed.bin");
 		return 0;
-	} else if (strcmp(argv[1], "-d") == 0){
-		decompress_file("compressed.bin");
+	} else if(strcmp(argv[1], "-c") == 0 && argc == 4){ 
+		compress(argv[2], argv[3]);
+	}
+	else if (strcmp(argv[1], "-d") == 0 && argc == 3){
+		decompress_file(argv[2], "decompressed");
+		return 0;
+	}
+	else if (strcmp(argv[1], "-d") == 0 && argc == 4){
+		decompress_file(argv[2], argv[3]);
 		return 0;
 	}
 
