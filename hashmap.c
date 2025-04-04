@@ -52,13 +52,13 @@ void HashMap_put(HashMap *map, unsigned char key, void *data){
 	}
 
 	//go to the end of the entry listed list add to last element
-	Entry **curr = &(entries[hashed_key]);
+	Entry *curr = entries[hashed_key];
 	
-	while((*curr) -> next != NULL){
-		curr = &((*curr) -> next);
+	while (curr -> next != NULL){
+		curr = curr -> next;
 	}
 
-	(*curr) -> next = newEntry;
+	curr -> next = newEntry;
 }
 
 void HashMap_get(HashMap *map, unsigned char key, void **data){
